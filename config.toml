@@ -1,4 +1,4 @@
-baseURL = 'https://www.mkideal.com/'
+baseURL = 'https://gopherd.com/'
 languageCode = 'zh-cn'
 title = ""
 theme = "researcher"
@@ -22,7 +22,7 @@ googleAnalytics = ""
 
 	[params.utteranc]
 		enable = true
-		repo = "mkideal/blog"
+		repo = "gopherd/gopherd.github.io"
 		issueTerm = "pathname"
 		theme = "github-light"
 
@@ -48,7 +48,7 @@ googleAnalytics = ""
 		url = "mailto:i@mkideal.com"
 
 	[params.codeblock]
-		share = "https://www.mkideal.com/tools/runner"
+		share = "https://gopherd.com/tools/runner"
 
 	[params.mongo]
 		enable = true
