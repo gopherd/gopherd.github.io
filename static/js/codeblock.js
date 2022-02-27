@@ -1176,6 +1176,7 @@ exports.bindSelector = function(options) {
 			code.setAttribute("contenteditable", "true");
 			block.lang = res.document.lang;
 			block.source = res.document.code;
+			selector.value = block.lang;
 			refreshEditor(block);
 		}).catch(function(e) {
 			block.source = "Load fail: " + e;

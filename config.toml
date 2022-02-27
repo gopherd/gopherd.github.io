@@ -48,7 +48,7 @@ googleAnalytics = ""
 		url = "mailto:i@mkideal.com"
 
 	[params.codeblock]
-		share = "https://gopherd.com/tools/runner"
+		share = "https://gopherd.com/tools/playground"
 
 	[params.mongo]
 		enable = true
