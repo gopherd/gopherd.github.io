@@ -1161,19 +1161,9 @@ exports.bindSelector = function(options) {
 	}
 	var languageCodes = {};
 	selector.addEventListener("change", function(e) {
-		var oldLang = code.getAttribute("data-lang");
 		var lang = exports.languageName(e.target.value);
-		var source = block.source;
-		if (oldLang) {
-			languageCodes[oldLang] = source;
-		}
-		console.log("language changed from %s to %s", oldLang, lang);
 		block.lang = lang;
-		block.source = languageCodes[lang] || options.codes[lang] || "";
-		refreshEditor(block)
-		if (options.recorder) {
-			options.recorder(lang);
-		}
+		changeEditorLang(options, block, languageCodes);
 	});
 	if (options.shareId) {
 		code.setAttribute("contenteditable", "false");
@@ -1191,9 +1181,29 @@ exports.bindSelector = function(options) {
 			block.source = "Load fail: " + e;
 			code.setAttribute("contenteditable", "true");
 		});
-	} else if (options.lang) {
-		selector.value = options.lang;
-		selector.dispatchEvent(new Event('change'));
+	} else {
+		selector.value = options.lang || "go";
+		console.log("selector.value", selector.value);
+		block.lang = selector.value;
+		changeEditorLang(options, block, languageCodes);
+	}
+}
+
+function changeEditorLang(options, block, languageCodes) {
+	if (!block.lang) {
+		block.lang = "go";
+	}
+	var oldLang = exports.languageName(block.code.getAttribute("data-lang"));
+	var source = block.source;
+	block.lang = exports.languageName(block.lang);
+	if (oldLang) {
+		languageCodes[oldLang] = source;
+	}
+	console.log("language changed from %s to %s", oldLang, block.lang);
+	block.source = languageCodes[block.lang] || options.codes[block.lang] || "";
+	refreshEditor(block);
+	if (options.recorder) {
+		options.recorder(block.lang);
 	}
 }
 
