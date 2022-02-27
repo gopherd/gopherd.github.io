@@ -1,0 +1,1910 @@
+<!doctype html><html lang><head>
+<meta charset=utf-8>
+<meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no">
+<title>获取 B 站加权评分的番剧排行榜</title>
+<meta name=description content="mkideal's Blog">
+<meta name=author content="mkideal">
+<link rel=stylesheet href=/css/fonts.css>
+<link rel=stylesheet href=/css/bootstrap.min.css>
+<link rel=stylesheet href=/font-awesome/css/all.min.css>
+<link rel=stylesheet href=/sass/researcher.min.css>
+<link rel="short icon" type=image/ico href="https://www.mkideal.com/favicon.ico?v=1.0">
+<link rel=icon type=image/ico href="https://www.mkideal.com/favicon.ico?v=1.0">
+<script data-ad-client=ca-pub-4848513853142926 async src=https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-77412491-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date),gtag('config','UA-77412491-1')</script>
+<link rel=stylesheet href=/css/style.css>
+<link rel=stylesheet href=/css/prism.css>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-core.min.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/plugins/autoloader/prism-autoloader.min.js></script>
+<script src=/js/lib/jquery-3.6.0.min.js></script>
+<script src=/js/lib/bootstrap.bundle.min.js></script>
+<script src=/js/mongo.js data-forward-url=https://code.gopherd.com/forward data-app-id=data-egkqp data-source=Cluster0 data-database=blog_mkideal_com data-collection></script>
+<script src=/js/codeblock.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/go.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/rust.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/lua.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/sololearn.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/onecompiler.js data-forward-url=https://code.gopherd.com/forward></script>
+<script>codeblock.init({shareCodeURL:"https://www.mkideal.com/tools/runner"});var oldHighlightAll=Prism.highlightAll;Prism.highlightAll=function(a,b){document.querySelectorAll('code:not([data-lang=""])').forEach(function(a){var b=a.getAttribute("data-lang"),c;b&&(c=codeblock.syntaxName(b),b!==c&&(a.className&&a.className.includes("language-"+b)&&(a.className=a.className.replace("language-"+b,"")),(!a.className||!a.className.includes("language-"+c))&&(console.log("add syntax class",c),a.className=(a.className||"")+" language-"+c)))}),oldHighlightAll(a,b)},$(function(){$('[data-toggle="tooltip"]').tooltip({trigger:"hover",delay:{show:250,hide:250}}),navigator&&/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)&&$(document).on('shown.bs.tooltip',function(a){setTimeout(function(){$(a.target).tooltip('hide')},2e3)})})</script>
+</head>
+<body>
+<div class="container mt-5" style=margin-top:1rem!important>
+<nav class="navbar navbar-expand-sm flex-column flex-sm-row text-nowrap p-0">
+<a class="navbar-brand mx-0 mr-sm-auto" href=https://www.mkideal.com/ title>
+<img src=https://www.mkideal.com/img/logo.svg width=187 height=34 alt=logo>
+</a>
+<div class="navbar-nav flex-row flex-wrap justify-content-center">
+<a class="nav-item nav-link" href=/ title=主页>
+主页
+</a>
+<span class="nav-item navbar-text mx-1">/</span>
+<a class="nav-item nav-link" href=/tools title=工具>
+工具
+</a>
+</div>
+</nav>
+</div>
+<hr>
+<div id=content>
+<div class=container>
+<article>
+<header>
+<h1 class=article-title style=margin-bottom:10px>获取 B 站加权评分的番剧排行榜</h1>
+<p><i class="fa-regular fa-calendar"></i> <i class=app-item-time>2022年2月17日</i>
+</p>
+</header>
+<div>
+<span>关键词: </span>
+<code class=keyword>动漫</code>
+<code class=keyword>番剧</code>
+<code class=keyword>排行榜</code>
+</div>
+<div>
+<span>摘&nbsp;&nbsp;要:</span>
+<i style=color:grey>B 站上番剧排行榜都是按照单一指标（如追番数，观看数，用户评分）进行的，这无法较好的反映番剧的评分，这里通过 http 接口获取番剧的信息然后加权评分得出排行榜。</i>
+</div>
+<br>
+<div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=color:#f92672>package</span> <span style=color:#a6e22e>main</span>
+
+<span style=color:#f92672>import</span> (
+	<span style=color:#e6db74>&#34;bytes&#34;</span>
+	<span style=color:#e6db74>&#34;encoding/json&#34;</span>
+	<span style=color:#e6db74>&#34;fmt&#34;</span>
+	<span style=color:#e6db74>&#34;log&#34;</span>
+	<span style=color:#e6db74>&#34;math&#34;</span>
+	<span style=color:#e6db74>&#34;net/http&#34;</span>
+	<span style=color:#e6db74>&#34;sort&#34;</span>
+	<span style=color:#e6db74>&#34;strconv&#34;</span>
+	<span style=color:#e6db74>&#34;strings&#34;</span>
+)
+
+<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>urlTemplate</span> = <span style=color:#e6db74>&#34;https://api.bilibili.com/pgc/season/index/result?season_version=-1&amp;spoken_language_type=-1&amp;area=-1&amp;is_finish=-1&amp;copyright=-1&amp;season_status=-1&amp;season_month=-1&amp;year=-1&amp;style_id=-1&amp;order=%d&amp;st=1&amp;sort=0&amp;page=1&amp;season_type=1&amp;pagesize=%d&amp;type=1&#34;</span>
+
+<span style=color:#66d9ef>const</span> (
+	<span style=color:#a6e22e>byScore</span>     = <span style=color:#ae81ff>4</span>
+	<span style=color:#a6e22e>byFavorites</span> = <span style=color:#ae81ff>3</span>
+	<span style=color:#a6e22e>byPlay</span>      = <span style=color:#ae81ff>2</span>
+)
+
+<span style=color:#66d9ef>type</span> <span style=color:#a6e22e>Media</span> <span style=color:#66d9ef>struct</span> {
+	<span style=color:#a6e22e>Id</span>        <span style=color:#66d9ef>int</span>
+	<span style=color:#a6e22e>Title</span>     <span style=color:#66d9ef>string</span>
+	<span style=color:#a6e22e>Score</span>     <span style=color:#66d9ef>float64</span>
+	<span style=color:#a6e22e>Favorites</span> <span style=color:#66d9ef>float64</span>
+	<span style=color:#a6e22e>Play</span>      <span style=color:#66d9ef>float64</span>
+	<span style=color:#a6e22e>Season</span>    <span style=color:#66d9ef>int</span>
+
+	<span style=color:#a6e22e>Weight</span> <span style=color:#66d9ef>float64</span>
+}
+
+<span style=color:#66d9ef>func</span> (<span style=color:#a6e22e>m</span> <span style=color:#f92672>*</span><span style=color:#a6e22e>Media</span>) <span style=color:#a6e22e>calculateWeightedScore</span>(<span style=color:#a6e22e>maxFavorites</span>, <span style=color:#a6e22e>maxPlay</span> <span style=color:#66d9ef>float64</span>) {
+	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>scoreWeight</span> = <span style=color:#ae81ff>0.8</span>
+	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>favoritesWeight</span> = <span style=color:#ae81ff>0.1</span>
+	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>playWeight</span> = <span style=color:#ae81ff>0.1</span>
+	<span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Weight</span> = <span style=color:#a6e22e>scoreWeight</span><span style=color:#f92672>*</span><span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Score</span> <span style=color:#f92672>+</span>
+		<span style=color:#a6e22e>favoritesWeight</span><span style=color:#f92672>*</span><span style=color:#ae81ff>10</span><span style=color:#f92672>*</span><span style=color:#a6e22e>normalize</span>(<span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Favorites</span><span style=color:#f92672>/</span><span style=color:#a6e22e>maxFavorites</span>) <span style=color:#f92672>+</span>
+		<span style=color:#a6e22e>playWeight</span><span style=color:#f92672>*</span><span style=color:#ae81ff>10</span><span style=color:#f92672>*</span><span style=color:#a6e22e>normalize</span>(<span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Play</span><span style=color:#f92672>/</span><span style=color:#a6e22e>maxPlay</span>)
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>normalize</span>(<span style=color:#a6e22e>x</span> <span style=color:#66d9ef>float64</span>) <span style=color:#66d9ef>float64</span> {
+	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>math</span>.<span style=color:#a6e22e>Sqrt</span>(<span style=color:#a6e22e>x</span>)
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>log10</span>(<span style=color:#a6e22e>x</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>int</span> {
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>n</span> <span style=color:#66d9ef>int</span>
+	<span style=color:#66d9ef>for</span> <span style=color:#a6e22e>x</span> <span style=color:#f92672>&gt;=</span> <span style=color:#ae81ff>10</span> {
+		<span style=color:#a6e22e>x</span> <span style=color:#f92672>/=</span> <span style=color:#ae81ff>10</span>
+		<span style=color:#a6e22e>n</span><span style=color:#f92672>++</span>
+	}
+	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>n</span>
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>prettyNumber</span>(<span style=color:#a6e22e>x</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>string</span> {
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>format</span> <span style=color:#66d9ef>string</span>
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>value</span> <span style=color:#66d9ef>interface</span>{}
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>pow</span> = <span style=color:#a6e22e>log10</span>(<span style=color:#a6e22e>x</span>)
+	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>pow</span> &lt; <span style=color:#ae81ff>4</span> {
+		<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>strconv</span>.<span style=color:#a6e22e>Itoa</span>(<span style=color:#a6e22e>x</span>)
+	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>pow</span> &lt; <span style=color:#ae81ff>8</span> {
+		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>pow</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>7</span> {
+			<span style=color:#a6e22e>format</span> = <span style=color:#e6db74>&#34;%d万&#34;</span>
+			<span style=color:#a6e22e>value</span> = <span style=color:#a6e22e>x</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>1e4</span>
+		} <span style=color:#66d9ef>else</span> {
+			<span style=color:#a6e22e>format</span> = <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Sprintf</span>(<span style=color:#e6db74>&#34;%%.%df万&#34;</span>, <span style=color:#ae81ff>7</span><span style=color:#f92672>-</span><span style=color:#a6e22e>pow</span>)
+			<span style=color:#a6e22e>value</span> = float64(<span style=color:#a6e22e>x</span>) <span style=color:#f92672>/</span> <span style=color:#ae81ff>1e4</span>
+		}
+	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>pow</span> &lt; <span style=color:#ae81ff>10</span> {
+		<span style=color:#a6e22e>format</span> = <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Sprintf</span>(<span style=color:#e6db74>&#34;%%.%df亿&#34;</span>, <span style=color:#ae81ff>10</span><span style=color:#f92672>-</span><span style=color:#a6e22e>pow</span>)
+		<span style=color:#a6e22e>value</span> = float64(<span style=color:#a6e22e>x</span>) <span style=color:#f92672>/</span> <span style=color:#ae81ff>1e8</span>
+	} <span style=color:#66d9ef>else</span> {
+		<span style=color:#a6e22e>format</span> = <span style=color:#e6db74>&#34;%d亿&#34;</span>
+		<span style=color:#a6e22e>value</span> = <span style=color:#a6e22e>x</span> <span style=color:#f92672>/</span> <span style=color:#ae81ff>1e8</span>
+	}
+	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Sprintf</span>(<span style=color:#a6e22e>format</span>, <span style=color:#a6e22e>value</span>)
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>isDigit</span>(<span style=color:#a6e22e>b</span> <span style=color:#66d9ef>byte</span>) <span style=color:#66d9ef>bool</span> {
+	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>b</span> <span style=color:#f92672>&gt;=</span> <span style=color:#e6db74>&#39;0&#39;</span> <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>b</span> <span style=color:#f92672>&lt;=</span> <span style=color:#e6db74>&#39;9&#39;</span>
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>trim</span>(<span style=color:#a6e22e>s</span> <span style=color:#66d9ef>string</span>) <span style=color:#66d9ef>string</span> {
+	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>n</span> = <span style=color:#ae81ff>64</span>
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>v</span> []<span style=color:#66d9ef>rune</span>
+	<span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>r</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>s</span> {
+		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>&gt;=</span> <span style=color:#a6e22e>n</span> {
+			<span style=color:#a6e22e>v</span> = append(<span style=color:#a6e22e>v</span>, <span style=color:#e6db74>&#39;.&#39;</span>, <span style=color:#e6db74>&#39;.&#39;</span>, <span style=color:#e6db74>&#39;.&#39;</span>)
+			<span style=color:#66d9ef>break</span>
+		}
+		<span style=color:#a6e22e>v</span> = append(<span style=color:#a6e22e>v</span>, <span style=color:#a6e22e>r</span>)
+	}
+	<span style=color:#66d9ef>return</span> string(<span style=color:#a6e22e>v</span>)
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>parseFloatPrefix</span>(<span style=color:#a6e22e>s</span> <span style=color:#66d9ef>string</span>) <span style=color:#66d9ef>float64</span> {
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>n</span> = len(<span style=color:#a6e22e>s</span>)
+	<span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>:=</span> <span style=color:#ae81ff>0</span>; <span style=color:#a6e22e>i</span> &lt; <span style=color:#a6e22e>n</span>; <span style=color:#a6e22e>i</span><span style=color:#f92672>++</span> {
+		<span style=color:#66d9ef>if</span> !<span style=color:#a6e22e>isDigit</span>(<span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>i</span>]) <span style=color:#f92672>&amp;&amp;</span> <span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>i</span>] <span style=color:#f92672>!=</span> <span style=color:#e6db74>&#39;.&#39;</span> {
+			<span style=color:#a6e22e>n</span> = <span style=color:#a6e22e>i</span>
+			<span style=color:#66d9ef>break</span>
+		}
+	}
+	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>n</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span> {
+		<span style=color:#66d9ef>return</span> <span style=color:#ae81ff>0</span>
+	}
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>unit</span> = float64(<span style=color:#ae81ff>1</span>)
+	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>strings</span>.<span style=color:#a6e22e>HasPrefix</span>(<span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>n</span>:], <span style=color:#e6db74>&#34;十亿&#34;</span>) {
+		<span style=color:#a6e22e>unit</span> = <span style=color:#ae81ff>1e9</span>
+	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>strings</span>.<span style=color:#a6e22e>HasPrefix</span>(<span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>n</span>:], <span style=color:#e6db74>&#34;亿&#34;</span>) {
+		<span style=color:#a6e22e>unit</span> = <span style=color:#ae81ff>1e8</span>
+	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>strings</span>.<span style=color:#a6e22e>HasPrefix</span>(<span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>n</span>:], <span style=color:#e6db74>&#34;千万&#34;</span>) {
+		<span style=color:#a6e22e>unit</span> = <span style=color:#ae81ff>1e7</span>
+	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>strings</span>.<span style=color:#a6e22e>HasPrefix</span>(<span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>n</span>:], <span style=color:#e6db74>&#34;百万&#34;</span>) {
+		<span style=color:#a6e22e>unit</span> = <span style=color:#ae81ff>1e6</span>
+	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>strings</span>.<span style=color:#a6e22e>HasPrefix</span>(<span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>n</span>:], <span style=color:#e6db74>&#34;十万&#34;</span>) {
+		<span style=color:#a6e22e>unit</span> = <span style=color:#ae81ff>1e5</span>
+	} <span style=color:#66d9ef>else</span> <span style=color:#66d9ef>if</span> <span style=color:#a6e22e>strings</span>.<span style=color:#a6e22e>HasPrefix</span>(<span style=color:#a6e22e>s</span>[<span style=color:#a6e22e>n</span>:], <span style=color:#e6db74>&#34;万&#34;</span>) {
+		<span style=color:#a6e22e>unit</span> = <span style=color:#ae81ff>1e4</span>
+	}
+	<span style=color:#a6e22e>v</span>, <span style=color:#a6e22e>_</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>strconv</span>.<span style=color:#a6e22e>ParseFloat</span>(<span style=color:#a6e22e>s</span>[:<span style=color:#a6e22e>n</span>], <span style=color:#ae81ff>64</span>)
+	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>v</span> <span style=color:#f92672>*</span> <span style=color:#a6e22e>unit</span>
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>query</span>(<span style=color:#a6e22e>medias</span> []<span style=color:#a6e22e>Media</span>, <span style=color:#a6e22e>indices</span> <span style=color:#66d9ef>map</span>[<span style=color:#66d9ef>int</span>]<span style=color:#66d9ef>int</span>, <span style=color:#a6e22e>by</span> <span style=color:#66d9ef>int</span>, <span style=color:#a6e22e>size</span> <span style=color:#66d9ef>int</span>) []<span style=color:#a6e22e>Media</span> {
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>result</span> <span style=color:#66d9ef>struct</span> {
+		<span style=color:#a6e22e>Code</span> <span style=color:#66d9ef>int</span> <span style=color:#e6db74>`json:&#34;code&#34;`</span>
+		<span style=color:#a6e22e>Data</span> <span style=color:#66d9ef>struct</span> {
+			<span style=color:#a6e22e>List</span> []<span style=color:#66d9ef>struct</span> {
+				<span style=color:#a6e22e>MediaId</span>   <span style=color:#66d9ef>int</span>    <span style=color:#e6db74>`json:&#34;media_id&#34;`</span>
+				<span style=color:#a6e22e>Title</span>     <span style=color:#66d9ef>string</span> <span style=color:#e6db74>`json:&#34;title&#34;`</span>
+				<span style=color:#a6e22e>OrderType</span> <span style=color:#66d9ef>string</span> <span style=color:#e6db74>`json:&#34;order_type&#34;`</span>
+				<span style=color:#a6e22e>Order</span>     <span style=color:#66d9ef>string</span> <span style=color:#e6db74>`json:&#34;order&#34;`</span>
+				<span style=color:#a6e22e>Season</span>    <span style=color:#66d9ef>int</span>    <span style=color:#e6db74>`json:&#34;season_type&#34;`</span>
+			} <span style=color:#e6db74>`json:&#34;list&#34;`</span>
+		} <span style=color:#e6db74>`json:&#34;data&#34;`</span>
+	}
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>url</span> = <span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Sprintf</span>(<span style=color:#a6e22e>urlTemplate</span>, <span style=color:#a6e22e>by</span>, <span style=color:#a6e22e>size</span>)
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>resp</span>, <span style=color:#a6e22e>err</span> = <span style=color:#a6e22e>http</span>.<span style=color:#a6e22e>Get</span>(<span style=color:#a6e22e>url</span>)
+	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
+		<span style=color:#a6e22e>log</span>.<span style=color:#a6e22e>Fatalf</span>(<span style=color:#e6db74>&#34;get by %d error: %v&#34;</span>, <span style=color:#a6e22e>by</span>, <span style=color:#a6e22e>err</span>)
+	}
+	<span style=color:#66d9ef>defer</span> <span style=color:#a6e22e>resp</span>.<span style=color:#a6e22e>Body</span>.<span style=color:#a6e22e>Close</span>()
+	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>err</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>json</span>.<span style=color:#a6e22e>NewDecoder</span>(<span style=color:#a6e22e>resp</span>.<span style=color:#a6e22e>Body</span>).<span style=color:#a6e22e>Decode</span>(<span style=color:#f92672>&amp;</span><span style=color:#a6e22e>result</span>); <span style=color:#a6e22e>err</span> <span style=color:#f92672>!=</span> <span style=color:#66d9ef>nil</span> {
+		<span style=color:#a6e22e>log</span>.<span style=color:#a6e22e>Fatalf</span>(<span style=color:#e6db74>&#34;unmarshal from json error: %v&#34;</span>, <span style=color:#a6e22e>err</span>)
+	}
+	<span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>Data</span>.<span style=color:#a6e22e>List</span> {
+		<span style=color:#a6e22e>index</span>, <span style=color:#a6e22e>ok</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>indices</span>[<span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>Data</span>.<span style=color:#a6e22e>List</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>MediaId</span>]
+		<span style=color:#66d9ef>if</span> !<span style=color:#a6e22e>ok</span> {
+			<span style=color:#a6e22e>index</span> = len(<span style=color:#a6e22e>medias</span>)
+			<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>m</span> = <span style=color:#a6e22e>Media</span>{
+				<span style=color:#a6e22e>Id</span>:     <span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>Data</span>.<span style=color:#a6e22e>List</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>MediaId</span>,
+				<span style=color:#a6e22e>Title</span>:  <span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>Data</span>.<span style=color:#a6e22e>List</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>Title</span>,
+				<span style=color:#a6e22e>Season</span>: <span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>Data</span>.<span style=color:#a6e22e>List</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>Season</span>,
+			}
+			<span style=color:#a6e22e>indices</span>[<span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Id</span>] = <span style=color:#a6e22e>index</span>
+			<span style=color:#a6e22e>medias</span> = append(<span style=color:#a6e22e>medias</span>, <span style=color:#a6e22e>m</span>)
+		}
+		<span style=color:#a6e22e>order</span> <span style=color:#f92672>:=</span> <span style=color:#a6e22e>parseFloatPrefix</span>(<span style=color:#a6e22e>result</span>.<span style=color:#a6e22e>Data</span>.<span style=color:#a6e22e>List</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>Order</span>)
+		<span style=color:#66d9ef>switch</span> <span style=color:#a6e22e>by</span> {
+		<span style=color:#66d9ef>case</span> <span style=color:#a6e22e>byScore</span>:
+			<span style=color:#a6e22e>medias</span>[<span style=color:#a6e22e>index</span>].<span style=color:#a6e22e>Score</span> = <span style=color:#a6e22e>order</span>
+		<span style=color:#66d9ef>case</span> <span style=color:#a6e22e>byFavorites</span>:
+			<span style=color:#a6e22e>medias</span>[<span style=color:#a6e22e>index</span>].<span style=color:#a6e22e>Favorites</span> = <span style=color:#a6e22e>order</span>
+		<span style=color:#66d9ef>case</span> <span style=color:#a6e22e>byPlay</span>:
+			<span style=color:#a6e22e>medias</span>[<span style=color:#a6e22e>index</span>].<span style=color:#a6e22e>Play</span> = <span style=color:#a6e22e>order</span>
+		<span style=color:#66d9ef>default</span>:
+			panic(<span style=color:#e6db74>&#34;unknown orderby&#34;</span>)
+		}
+	}
+
+	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>medias</span>
+}
+
+<span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>medias</span> []<span style=color:#a6e22e>Media</span>
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>indices</span> = make(<span style=color:#66d9ef>map</span>[<span style=color:#66d9ef>int</span>]<span style=color:#66d9ef>int</span>)
+	<span style=color:#66d9ef>const</span> <span style=color:#a6e22e>size</span> = <span style=color:#ae81ff>4000</span>
+	<span style=color:#a6e22e>medias</span> = <span style=color:#a6e22e>query</span>(<span style=color:#a6e22e>medias</span>, <span style=color:#a6e22e>indices</span>, <span style=color:#a6e22e>byScore</span>, <span style=color:#a6e22e>size</span>)
+	<span style=color:#a6e22e>medias</span> = <span style=color:#a6e22e>query</span>(<span style=color:#a6e22e>medias</span>, <span style=color:#a6e22e>indices</span>, <span style=color:#a6e22e>byFavorites</span>, <span style=color:#a6e22e>size</span>)
+	<span style=color:#a6e22e>medias</span> = <span style=color:#a6e22e>query</span>(<span style=color:#a6e22e>medias</span>, <span style=color:#a6e22e>indices</span>, <span style=color:#a6e22e>byPlay</span>, <span style=color:#a6e22e>size</span>)
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>maxFavorites</span>, <span style=color:#a6e22e>maxPlay</span> <span style=color:#66d9ef>float64</span>
+	<span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>m</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>medias</span> {
+		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> <span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Favorites</span> &gt; <span style=color:#a6e22e>maxFavorites</span> {
+			<span style=color:#a6e22e>maxFavorites</span> = <span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Favorites</span>
+		}
+		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>==</span> <span style=color:#ae81ff>0</span> <span style=color:#f92672>||</span> <span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Play</span> &gt; <span style=color:#a6e22e>maxPlay</span> {
+			<span style=color:#a6e22e>maxPlay</span> = <span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Play</span>
+		}
+	}
+	<span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>medias</span> {
+		<span style=color:#a6e22e>medias</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>calculateWeightedScore</span>(<span style=color:#a6e22e>maxFavorites</span>, <span style=color:#a6e22e>maxPlay</span>)
+	}
+	<span style=color:#a6e22e>sort</span>.<span style=color:#a6e22e>Slice</span>(<span style=color:#a6e22e>medias</span>, <span style=color:#66d9ef>func</span>(<span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>j</span> <span style=color:#66d9ef>int</span>) <span style=color:#66d9ef>bool</span> {
+		<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>medias</span>[<span style=color:#a6e22e>i</span>].<span style=color:#a6e22e>Weight</span> &gt; <span style=color:#a6e22e>medias</span>[<span style=color:#a6e22e>j</span>].<span style=color:#a6e22e>Weight</span>
+	})
+
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>table</span> <span style=color:#a6e22e>bytes</span>.<span style=color:#a6e22e>Buffer</span>
+	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>maxCount</span> = <span style=color:#ae81ff>200</span>
+	<span style=color:#a6e22e>table</span>.<span style=color:#a6e22e>WriteString</span>(<span style=color:#e6db74>`
+</span><span style=color:#e6db74>|排名|番名|用户评分|追番数|播放次数|权重评分|
+</span><span style=color:#e6db74>|----|----|--------|------|--------|--------|`</span>)
+	<span style=color:#66d9ef>for</span> <span style=color:#a6e22e>i</span>, <span style=color:#a6e22e>m</span> <span style=color:#f92672>:=</span> <span style=color:#66d9ef>range</span> <span style=color:#a6e22e>medias</span> {
+		<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>i</span> <span style=color:#f92672>&gt;=</span> <span style=color:#a6e22e>maxCount</span> {
+			<span style=color:#66d9ef>break</span>
+		}
+		<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Fprintf</span>(<span style=color:#f92672>&amp;</span><span style=color:#a6e22e>table</span>, <span style=color:#e6db74>&#34;\n|%d|%s|%.01f|%s|%s|%.01f|&#34;</span>, <span style=color:#a6e22e>i</span><span style=color:#f92672>+</span><span style=color:#ae81ff>1</span>, <span style=color:#a6e22e>trim</span>(<span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Title</span>), <span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Score</span>, <span style=color:#a6e22e>prettyNumber</span>(int(<span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Favorites</span>)), <span style=color:#a6e22e>prettyNumber</span>(int(<span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Play</span>)), <span style=color:#a6e22e>m</span>.<span style=color:#a6e22e>Weight</span>)
+	}
+	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(<span style=color:#a6e22e>table</span>.<span style=color:#a6e22e>String</span>())
+}
+</code></pre></div><p>根据上面的代码获取 Top-200 的番剧如下：</p>
+<table>
+<thead>
+<tr>
+<th>排名</th>
+<th>番名</th>
+<th>用户评分</th>
+<th>追番数</th>
+<th>播放次数</th>
+<th>权重评分</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>鬼灭之刃</td>
+<td>9.7</td>
+<td>1144万</td>
+<td>8.10亿</td>
+<td>9.7</td>
+</tr>
+<tr>
+<td>2</td>
+<td>咒术回战</td>
+<td>9.7</td>
+<td>1069万</td>
+<td>6.70亿</td>
+<td>9.6</td>
+</tr>
+<tr>
+<td>3</td>
+<td>鬼灭之刃 无限列车篇</td>
+<td>9.8</td>
+<td>1276万</td>
+<td>1.20亿</td>
+<td>9.2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>名侦探柯南</td>
+<td>9.8</td>
+<td>393.9万</td>
+<td>5.10亿</td>
+<td>9.2</td>
+</tr>
+<tr>
+<td>5</td>
+<td>JOJO的奇妙冒险 黄金之风</td>
+<td>9.8</td>
+<td>468.6万</td>
+<td>4.40亿</td>
+<td>9.2</td>
+</tr>
+<tr>
+<td>6</td>
+<td>小林家的龙女仆</td>
+<td>9.7</td>
+<td>774.8万</td>
+<td>3.20亿</td>
+<td>9.2</td>
+</tr>
+<tr>
+<td>7</td>
+<td>辉夜大小姐想让我告白～天才们的恋爱头脑战～</td>
+<td>9.8</td>
+<td>732.6万</td>
+<td>2.50亿</td>
+<td>9.2</td>
+</tr>
+<tr>
+<td>8</td>
+<td>辉夜大小姐想让我告白？～天才们的恋爱头脑战～</td>
+<td>9.8</td>
+<td>745.5万</td>
+<td>2.00亿</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td>9</td>
+<td>青春猪头少年不会梦到兔女郎学姐</td>
+<td>9.8</td>
+<td>732.8万</td>
+<td>2.00亿</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Re：从零开始的异世界生活 第二季 后半</td>
+<td>9.9</td>
+<td>844.2万</td>
+<td>8797万</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td>11</td>
+<td>OVERLORD</td>
+<td>9.6</td>
+<td>600.2万</td>
+<td>3.90亿</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td>12</td>
+<td>堀与宫村</td>
+<td>9.8</td>
+<td>653.0万</td>
+<td>2.00亿</td>
+<td>9.1</td>
+</tr>
+<tr>
+<td>13</td>
+<td>某科学的超电磁炮T</td>
+<td>9.8</td>
+<td>620.1万</td>
+<td>2.00亿</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>14</td>
+<td>紫罗兰永恒花园</td>
+<td>9.8</td>
+<td>741.2万</td>
+<td>1.50亿</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>15</td>
+<td>JOJO的奇妙冒险 石之海</td>
+<td>9.9</td>
+<td>733.6万</td>
+<td>1.00亿</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>16</td>
+<td>工作细胞</td>
+<td>9.6</td>
+<td>796.3万</td>
+<td>2.20亿</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>17</td>
+<td>OVERLORD Ⅱ</td>
+<td>9.6</td>
+<td>527.0万</td>
+<td>3.60亿</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>18</td>
+<td>关于我转生变成史莱姆这档事</td>
+<td>9.4</td>
+<td>722.7万</td>
+<td>4.10亿</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>19</td>
+<td>冰菓</td>
+<td>9.8</td>
+<td>673.3万</td>
+<td>1.20亿</td>
+<td>9.0</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Re：从零开始的异世界生活 第二季 前半</td>
+<td>9.7</td>
+<td>769.7万</td>
+<td>1.30亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>21</td>
+<td>JOJO的奇妙冒险</td>
+<td>9.8</td>
+<td>530.0万</td>
+<td>1.60亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>22</td>
+<td>四月是你的谎言</td>
+<td>9.8</td>
+<td>518.6万</td>
+<td>1.50亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>23</td>
+<td>关于我转生变成史莱姆这档事 转生史莱姆日记</td>
+<td>9.7</td>
+<td>829.2万</td>
+<td>9037万</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>24</td>
+<td>碧蓝之海</td>
+<td>9.9</td>
+<td>417.8万</td>
+<td>1.30亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>25</td>
+<td>猫和老鼠 旧版</td>
+<td>9.9</td>
+<td>261.2万</td>
+<td>2.10亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>26</td>
+<td>名侦探柯南（中配）</td>
+<td>9.8</td>
+<td>112.1万</td>
+<td>4.30亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>27</td>
+<td>工作细胞 第二季</td>
+<td>9.7</td>
+<td>836.2万</td>
+<td>6981万</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>28</td>
+<td>OVERLORD Ⅲ</td>
+<td>9.4</td>
+<td>539.1万</td>
+<td>3.80亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>29</td>
+<td>犬夜叉</td>
+<td>9.9</td>
+<td>216.6万</td>
+<td>2.20亿</td>
+<td>8.9</td>
+</tr>
+<tr>
+<td>30</td>
+<td>徒然喜欢你</td>
+<td>9.7</td>
+<td>549.9万</td>
+<td>1.50亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>31</td>
+<td>这个勇者明明超强却过分慎重</td>
+<td>9.7</td>
+<td>503.2万</td>
+<td>1.70亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>32</td>
+<td>紫罗兰永恒花园 剧场版</td>
+<td>9.9</td>
+<td>787.0万</td>
+<td>1503万</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>33</td>
+<td>银魂</td>
+<td>9.9</td>
+<td>242.2万</td>
+<td>1.90亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>34</td>
+<td>异度侵入 ID:INVADED</td>
+<td>9.8</td>
+<td>464.0万</td>
+<td>1.20亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>35</td>
+<td>JOJO的奇妙冒险 星尘远征军</td>
+<td>9.8</td>
+<td>430.1万</td>
+<td>1.30亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>36</td>
+<td>某科学的超电磁炮</td>
+<td>9.7</td>
+<td>519.9万</td>
+<td>1.40亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>37</td>
+<td>紫罗兰永恒花园外传：永远与自动手记人偶</td>
+<td>9.9</td>
+<td>594.8万</td>
+<td>3439万</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>38</td>
+<td>JOJO的奇妙冒险 不灭钻石</td>
+<td>9.8</td>
+<td>288.5万</td>
+<td>1.90亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>39</td>
+<td>JOJO的奇妙冒险 星尘远征军 埃及篇</td>
+<td>9.8</td>
+<td>410.1万</td>
+<td>1.20亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>40</td>
+<td>我的青春恋爱物语果然有问题。续</td>
+<td>9.8</td>
+<td>320.6万</td>
+<td>1.40亿</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>41</td>
+<td>小林家的龙女仆 第二季</td>
+<td>9.5</td>
+<td>847.9万</td>
+<td>9083万</td>
+<td>8.8</td>
+</tr>
+<tr>
+<td>42</td>
+<td>NO GAME NO LIFE 游戏人生</td>
+<td>9.8</td>
+<td>447.4万</td>
+<td>8075万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>43</td>
+<td>路人超能100 II(灵能百分百 第二季)</td>
+<td>9.9</td>
+<td>279.3万</td>
+<td>9861万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>44</td>
+<td>岸边露伴 一动也不动</td>
+<td>9.9</td>
+<td>510.3万</td>
+<td>2310万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>45</td>
+<td>夏目友人帐 唤石者与怪异的访客</td>
+<td>9.9</td>
+<td>566.7万</td>
+<td>1260万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>46</td>
+<td>路人超能100(灵能百分百)</td>
+<td>9.8</td>
+<td>324.2万</td>
+<td>1.00亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>47</td>
+<td>刀剑神域</td>
+<td>9.7</td>
+<td>337.7万</td>
+<td>1.40亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>48</td>
+<td>日常</td>
+<td>9.9</td>
+<td>344.2万</td>
+<td>5086万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>49</td>
+<td>埃罗芒阿老师</td>
+<td>9.3</td>
+<td>700.0万</td>
+<td>2.10亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>50</td>
+<td>致不灭的你</td>
+<td>9.6</td>
+<td>468.6万</td>
+<td>1.30亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>51</td>
+<td>卫宫家今天的饭</td>
+<td>9.8</td>
+<td>351.0万</td>
+<td>8247万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>52</td>
+<td>Ｄｒ．ＳＴＯＮＥ 石纪元</td>
+<td>9.7</td>
+<td>328.1万</td>
+<td>1.40亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>53</td>
+<td>你的名字。</td>
+<td>9.9</td>
+<td>270.2万</td>
+<td>7151万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>54</td>
+<td>天使降临到我身边</td>
+<td>9.8</td>
+<td>362.2万</td>
+<td>7473万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>55</td>
+<td>Re：从零开始的异世界生活 新编集版</td>
+<td>9.6</td>
+<td>620.1万</td>
+<td>7152万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>56</td>
+<td>中二病也要谈恋爱！</td>
+<td>9.8</td>
+<td>452.8万</td>
+<td>4387万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>57</td>
+<td>我的青春恋爱物语果然有问题。</td>
+<td>9.7</td>
+<td>430.8万</td>
+<td>8635万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>58</td>
+<td>擅长捉弄的高木同学 第二季</td>
+<td>9.9</td>
+<td>273.4万</td>
+<td>6381万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>59</td>
+<td>黑色四叶草</td>
+<td>9.5</td>
+<td>264.1万</td>
+<td>3.00亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>60</td>
+<td>约定的梦幻岛</td>
+<td>9.8</td>
+<td>343.7万</td>
+<td>7495万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>61</td>
+<td>CLANNAD</td>
+<td>9.9</td>
+<td>334.3万</td>
+<td>4268万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>62</td>
+<td>齐木楠雄的灾难</td>
+<td>9.7</td>
+<td>297.4万</td>
+<td>1.40亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>63</td>
+<td>齐木楠雄的灾难 第二季</td>
+<td>9.8</td>
+<td>238.6万</td>
+<td>1.20亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>64</td>
+<td>Fate/stay night [Unlimited Blade Works] 第一季</td>
+<td>9.5</td>
+<td>437.1万</td>
+<td>1.80亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>65</td>
+<td>月色真美</td>
+<td>9.8</td>
+<td>355.1万</td>
+<td>6743万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>66</td>
+<td>命运-冠位指定 绝对魔兽战线 巴比伦尼亚</td>
+<td>9.5</td>
+<td>476.5万</td>
+<td>1.60亿</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>67</td>
+<td>异世界迷宫黑心企业</td>
+<td>9.8</td>
+<td>317.7万</td>
+<td>8034万</td>
+<td>8.7</td>
+</tr>
+<tr>
+<td>68</td>
+<td>迪迦奥特曼（中配）</td>
+<td>9.9</td>
+<td>167.0万</td>
+<td>1.00亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>69</td>
+<td>青春猪头少年不会梦到怀梦美少女</td>
+<td>9.8</td>
+<td>494.2万</td>
+<td>2351万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>70</td>
+<td>总之就是非常可爱</td>
+<td>9.5</td>
+<td>485.7万</td>
+<td>1.40亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>71</td>
+<td>五等分的新娘∬</td>
+<td>9.7</td>
+<td>452.4万</td>
+<td>6202万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>72</td>
+<td>游戏人生 零</td>
+<td>9.9</td>
+<td>352.0万</td>
+<td>2585万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>73</td>
+<td>Fate/Zero 第一季</td>
+<td>9.6</td>
+<td>397.0万</td>
+<td>1.20亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>74</td>
+<td>家庭教师HITMAN REBORN!</td>
+<td>9.9</td>
+<td>164.6万</td>
+<td>9547万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>75</td>
+<td>关于我转生变成史莱姆这档事 第二季</td>
+<td>8.9</td>
+<td>889.6万</td>
+<td>3.60亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>76</td>
+<td>在下坂本，有何贵干？</td>
+<td>9.3</td>
+<td>570.1万</td>
+<td>2.10亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>77</td>
+<td>女高中生的虚度日常</td>
+<td>9.8</td>
+<td>309.1万</td>
+<td>6535万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>78</td>
+<td>月刊少女野崎君</td>
+<td>9.8</td>
+<td>376.1万</td>
+<td>4404万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>79</td>
+<td>Angels of Death</td>
+<td>9.5</td>
+<td>504.1万</td>
+<td>1.20亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>80</td>
+<td>工作细胞BLACK</td>
+<td>9.8</td>
+<td>292.5万</td>
+<td>7018万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>81</td>
+<td>魔卡少女樱 CLEAR CARD篇</td>
+<td>9.8</td>
+<td>293.9万</td>
+<td>6669万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>82</td>
+<td>文豪野犬 第三季</td>
+<td>9.8</td>
+<td>289.3万</td>
+<td>6392万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>83</td>
+<td>动物狂想曲 / BEASTARS</td>
+<td>9.7</td>
+<td>341.7万</td>
+<td>8142万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>84</td>
+<td>齐木楠雄的灾难（日播&精选版）</td>
+<td>9.6</td>
+<td>184.4万</td>
+<td>2.30亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>85</td>
+<td>入间同学入魔了 第二季</td>
+<td>9.7</td>
+<td>335.2万</td>
+<td>8266万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>86</td>
+<td>擅长捉弄的高木同学 第三季</td>
+<td>9.9</td>
+<td>314.5万</td>
+<td>2352万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>87</td>
+<td>男子高中生的日常</td>
+<td>9.8</td>
+<td>291.5万</td>
+<td>5665万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>88</td>
+<td>多罗罗</td>
+<td>9.4</td>
+<td>445.3万</td>
+<td>1.80亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>89</td>
+<td>关于前辈很烦人的事</td>
+<td>9.8</td>
+<td>269.7万</td>
+<td>6335万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>90</td>
+<td>Ｄｒ．ＳＴＯＮＥ 石纪元 (第二季)</td>
+<td>9.7</td>
+<td>368.7万</td>
+<td>6259万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>91</td>
+<td>魔女之旅</td>
+<td>9.7</td>
+<td>332.1万</td>
+<td>7451万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>92</td>
+<td>夏目友人帐</td>
+<td>9.8</td>
+<td>312.3万</td>
+<td>4605万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>93</td>
+<td>齐木楠雄的灾难 始动篇</td>
+<td>9.8</td>
+<td>370.9万</td>
+<td>2896万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>94</td>
+<td>轻音少女 第一季</td>
+<td>9.9</td>
+<td>233.9万</td>
+<td>3771万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>95</td>
+<td>Charlotte</td>
+<td>9.4</td>
+<td>476.4万</td>
+<td>1.50亿</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>96</td>
+<td>可塑性记忆</td>
+<td>9.7</td>
+<td>327.6万</td>
+<td>6976万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>97</td>
+<td>会长是女仆大人！</td>
+<td>9.8</td>
+<td>249.3万</td>
+<td>6200万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>98</td>
+<td>宝石之国</td>
+<td>9.7</td>
+<td>325.3万</td>
+<td>6946万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>99</td>
+<td>樱花庄的宠物女孩</td>
+<td>9.7</td>
+<td>371.6万</td>
+<td>5200万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>100</td>
+<td>装甲重拳/MEGALOBOX 第二季</td>
+<td>9.9</td>
+<td>240.6万</td>
+<td>3179万</td>
+<td>8.6</td>
+</tr>
+<tr>
+<td>101</td>
+<td>干物妹！小埋R</td>
+<td>9.4</td>
+<td>479.2万</td>
+<td>1.40亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>102</td>
+<td>命运-冠位嘉年华</td>
+<td>9.8</td>
+<td>481.0万</td>
+<td>687.5万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>103</td>
+<td>百变小樱</td>
+<td>9.8</td>
+<td>185.7万</td>
+<td>8123万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>104</td>
+<td>某科学的超电磁炮S</td>
+<td>9.7</td>
+<td>261.4万</td>
+<td>8512万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>105</td>
+<td>路人女主的养成方法 Fine</td>
+<td>9.8</td>
+<td>412.3万</td>
+<td>1305万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>106</td>
+<td>龙与虎</td>
+<td>9.7</td>
+<td>320.7万</td>
+<td>5903万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>107</td>
+<td>银魂 第二季</td>
+<td>9.9</td>
+<td>157.1万</td>
+<td>5227万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>108</td>
+<td>强风吹拂</td>
+<td>9.9</td>
+<td>174.4万</td>
+<td>4453万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>109</td>
+<td>装甲重拳/MEGALOBOX</td>
+<td>9.8</td>
+<td>215.6万</td>
+<td>5907万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>110</td>
+<td>蜡笔小新 第二季（中文）</td>
+<td>9.8</td>
+<td>59.00万</td>
+<td>1.70亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>111</td>
+<td>玉子市场</td>
+<td>9.8</td>
+<td>265.4万</td>
+<td>3799万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>112</td>
+<td>Re：从零开始的异世界生活 Memory Snow(雪之回忆)</td>
+<td>9.7</td>
+<td>491.7万</td>
+<td>1368万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>113</td>
+<td>火影忍者 疾风传</td>
+<td>9.6</td>
+<td>190.4万</td>
+<td>1.60亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>114</td>
+<td>干物妹！小埋</td>
+<td>9.3</td>
+<td>477.9万</td>
+<td>1.70亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>115</td>
+<td>珈百璃的堕落</td>
+<td>9.6</td>
+<td>321.2万</td>
+<td>8583万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>116</td>
+<td>Fate/stay night [Unlimited Blade Works] 第二季</td>
+<td>9.5</td>
+<td>290.1万</td>
+<td>1.50亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>117</td>
+<td>路人女主的养成方法</td>
+<td>9.4</td>
+<td>415.8万</td>
+<td>1.40亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>118</td>
+<td>食戟之灵</td>
+<td>9.5</td>
+<td>253.4万</td>
+<td>1.70亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>119</td>
+<td>在魔王城说晚安</td>
+<td>9.7</td>
+<td>276.6万</td>
+<td>6242万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>120</td>
+<td>这个美术社大有问题！</td>
+<td>9.8</td>
+<td>220.3万</td>
+<td>4935万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>121</td>
+<td>蜡笔小新 第一季（中文）</td>
+<td>9.8</td>
+<td>93.80万</td>
+<td>1.20亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>122</td>
+<td>命运之夜——天之杯II ：迷失之蝶</td>
+<td>9.7</td>
+<td>416.3万</td>
+<td>2184万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>123</td>
+<td>夏目友人帐 第六季</td>
+<td>9.8</td>
+<td>215.4万</td>
+<td>4799万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>124</td>
+<td>请问您今天要来点兔子吗？BLOOM</td>
+<td>9.9</td>
+<td>249.0万</td>
+<td>1399万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>125</td>
+<td>我们仍未知道那天所看见的花的名字。</td>
+<td>9.6</td>
+<td>412.6万</td>
+<td>4805万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>126</td>
+<td>Fate/Zero 第二季</td>
+<td>9.6</td>
+<td>230.9万</td>
+<td>1.20亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>127</td>
+<td>转生成为了只有乙女游戏破灭Flag的邪恶大小姐 第&mldr;</td>
+<td>9.6</td>
+<td>375.0万</td>
+<td>5806万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>128</td>
+<td>极主夫道</td>
+<td>9.7</td>
+<td>287.1万</td>
+<td>5259万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>129</td>
+<td>理科生坠入情网，故尝试证明。</td>
+<td>9.7</td>
+<td>292.1万</td>
+<td>5084万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>130</td>
+<td>超能力女儿</td>
+<td>9.6</td>
+<td>285.4万</td>
+<td>8898万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>131</td>
+<td>戒律的复活</td>
+<td>9.7</td>
+<td>197.7万</td>
+<td>8818万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>132</td>
+<td>玉子爱情故事</td>
+<td>9.9</td>
+<td>213.8万</td>
+<td>1878万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>133</td>
+<td>ReLIFE</td>
+<td>9.9</td>
+<td>192.2万</td>
+<td>2371万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>134</td>
+<td>少女终末旅行</td>
+<td>9.8</td>
+<td>233.6万</td>
+<td>3595万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>135</td>
+<td>银魂 第三季</td>
+<td>9.9</td>
+<td>154.4万</td>
+<td>3512万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>136</td>
+<td>打工吧！魔王大人</td>
+<td>9.6</td>
+<td>249.9万</td>
+<td>1.00亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>137</td>
+<td>CAROLE & TUESDAY</td>
+<td>9.7</td>
+<td>232.8万</td>
+<td>6599万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>138</td>
+<td>此花亭奇谭</td>
+<td>9.8</td>
+<td>228.6万</td>
+<td>3462万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>139</td>
+<td>路人女主的养成方法 ♭</td>
+<td>9.7</td>
+<td>360.7万</td>
+<td>2555万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>140</td>
+<td>阿宅的恋爱真难</td>
+<td>9.6</td>
+<td>313.2万</td>
+<td>6969万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>141</td>
+<td>欢迎光临樱兰高校</td>
+<td>9.9</td>
+<td>133.1万</td>
+<td>4121万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>142</td>
+<td>夏目友人帐 第五季</td>
+<td>9.7</td>
+<td>260.5万</td>
+<td>5328万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>143</td>
+<td>入间同学入魔了</td>
+<td>9.5</td>
+<td>277.7万</td>
+<td>1.30亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>144</td>
+<td>文豪野犬 汪！</td>
+<td>9.8</td>
+<td>279.7万</td>
+<td>2031万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>145</td>
+<td>鬼灭之刃 中配版</td>
+<td>9.1</td>
+<td>769.8万</td>
+<td>1.30亿</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>146</td>
+<td>转生成为了只有乙女游戏破灭Flag的邪恶大小姐</td>
+<td>9.5</td>
+<td>330.6万</td>
+<td>9674万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>147</td>
+<td>妖精森林的小不点</td>
+<td>9.9</td>
+<td>155.0万</td>
+<td>2772万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>148</td>
+<td>魔法少女小圆</td>
+<td>9.8</td>
+<td>204.5万</td>
+<td>3659万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>149</td>
+<td>EVA 新世纪福音战士</td>
+<td>9.7</td>
+<td>208.4万</td>
+<td>6674万</td>
+<td>8.5</td>
+</tr>
+<tr>
+<td>150</td>
+<td>甘城光辉游乐园</td>
+<td>9.7</td>
+<td>273.2万</td>
+<td>4128万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>151</td>
+<td>元气少女缘结神◎</td>
+<td>9.7</td>
+<td>268.4万</td>
+<td>4207万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>152</td>
+<td>游戏王 怪兽之决斗</td>
+<td>9.8</td>
+<td>83.00万</td>
+<td>1.00亿</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>153</td>
+<td>CLANNAD ～AFTER STORY～</td>
+<td>9.9</td>
+<td>145.9万</td>
+<td>2816万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>154</td>
+<td>悠哉日常大王 第三季</td>
+<td>9.9</td>
+<td>171.1万</td>
+<td>2006万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>155</td>
+<td>君主·埃尔梅罗二世事件簿 魔眼收集列车 Grace not&mldr;</td>
+<td>9.7</td>
+<td>236.8万</td>
+<td>5078万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>156</td>
+<td>奇蛋物语 / WONDER EGG PRIORITY</td>
+<td>9.7</td>
+<td>246.6万</td>
+<td>4492万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>157</td>
+<td>幻界战线 & BEYOND</td>
+<td>9.8</td>
+<td>177.9万</td>
+<td>3974万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>158</td>
+<td>约战狂三外传</td>
+<td>9.6</td>
+<td>450.3万</td>
+<td>2064万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>159</td>
+<td>冰海战记</td>
+<td>9.8</td>
+<td>162.7万</td>
+<td>4505万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>160</td>
+<td>俺物语！！</td>
+<td>9.9</td>
+<td>130.3万</td>
+<td>2750万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>161</td>
+<td>公主连结Re:Dive</td>
+<td>9.5</td>
+<td>307.9万</td>
+<td>8953万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>162</td>
+<td>街角魔族</td>
+<td>9.8</td>
+<td>176.6万</td>
+<td>3623万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>163</td>
+<td>轻音少女 第二季</td>
+<td>9.9</td>
+<td>109.2万</td>
+<td>3603万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>164</td>
+<td>死神少爷与黑女仆</td>
+<td>9.7</td>
+<td>236.0万</td>
+<td>4297万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>165</td>
+<td>路人超能100 第一次灵能咨询所员工旅游～舒缓心&mldr;</td>
+<td>9.8</td>
+<td>318.6万</td>
+<td>478.4万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>166</td>
+<td>黑执事</td>
+<td>9.8</td>
+<td>181.9万</td>
+<td>3182万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>167</td>
+<td>佐贺偶像是传奇 卷土重来</td>
+<td>9.9</td>
+<td>134.5万</td>
+<td>2326万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>168</td>
+<td>国王排名</td>
+<td>8.6</td>
+<td>936.6万</td>
+<td>3.70亿</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>169</td>
+<td>赛马娘 第二季</td>
+<td>9.9</td>
+<td>131.6万</td>
+<td>2230万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>170</td>
+<td>迪迦奥特曼</td>
+<td>9.9</td>
+<td>106.4万</td>
+<td>3115万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>171</td>
+<td>因为太怕痛就全点防御力了</td>
+<td>9.0</td>
+<td>595.4万</td>
+<td>2.20亿</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>172</td>
+<td>One Room 第三季</td>
+<td>9.8</td>
+<td>204.4万</td>
+<td>2077万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>173</td>
+<td>SSSS.电光机王</td>
+<td>9.8</td>
+<td>164.6万</td>
+<td>3276万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>174</td>
+<td>终将成为你</td>
+<td>9.8</td>
+<td>184.0万</td>
+<td>2611万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>175</td>
+<td>幻界战线</td>
+<td>9.6</td>
+<td>240.9万</td>
+<td>6496万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>176</td>
+<td>邪神与厨二病少女 第二季</td>
+<td>9.8</td>
+<td>170.9万</td>
+<td>2887万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>177</td>
+<td>排球少年！！</td>
+<td>9.9</td>
+<td>94.40万</td>
+<td>3251万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>178</td>
+<td>天气之子</td>
+<td>9.6</td>
+<td>314.7万</td>
+<td>3586万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>179</td>
+<td>邻家索菲</td>
+<td>9.8</td>
+<td>161.8万</td>
+<td>2888万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>180</td>
+<td>薇薇 -萤石眼之歌-</td>
+<td>9.8</td>
+<td>160.4万</td>
+<td>2927万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>181</td>
+<td>境界的彼方</td>
+<td>9.5</td>
+<td>383.4万</td>
+<td>4510万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>182</td>
+<td>吹响吧！上低音号</td>
+<td>9.8</td>
+<td>147.3万</td>
+<td>3353万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>183</td>
+<td>小木乃伊到我家</td>
+<td>9.6</td>
+<td>244.5万</td>
+<td>5585万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>184</td>
+<td>言叶之庭</td>
+<td>9.7</td>
+<td>255.8万</td>
+<td>2408万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>185</td>
+<td>打了300年的史莱姆，不知不觉就练到了满级</td>
+<td>9.5</td>
+<td>274.4万</td>
+<td>8022万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>186</td>
+<td>命运-冠位指定 -月光／失落之室-</td>
+<td>9.6</td>
+<td>486.0万</td>
+<td>461.5万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>187</td>
+<td>世界顶尖的暗杀者,转生为异世界贵族</td>
+<td>9.2</td>
+<td>470.0万</td>
+<td>1.30亿</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>188</td>
+<td>我们的重制人生</td>
+<td>9.6</td>
+<td>230.7万</td>
+<td>5447万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>189</td>
+<td>泽塔奥特曼</td>
+<td>9.8</td>
+<td>96.40万</td>
+<td>4880万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>190</td>
+<td>野良神</td>
+<td>9.5</td>
+<td>320.8万</td>
+<td>5424万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>191</td>
+<td>关于完全听不懂老公在说什么的事 第一季</td>
+<td>9.7</td>
+<td>127.2万</td>
+<td>6526万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>192</td>
+<td>灰与幻想的格林姆迦尔</td>
+<td>9.8</td>
+<td>163.4万</td>
+<td>2111万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>193</td>
+<td>流汗吧！健身少女</td>
+<td>9.7</td>
+<td>170.1万</td>
+<td>4216万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>194</td>
+<td>比宇宙更远的地方</td>
+<td>9.8</td>
+<td>152.8万</td>
+<td>2231万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>195</td>
+<td>Re：从零开始的异世界生活 冰结之绊</td>
+<td>9.5</td>
+<td>491.2万</td>
+<td>1387万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>196</td>
+<td>虫师</td>
+<td>9.9</td>
+<td>118.2万</td>
+<td>1299万</td>
+<td>8.4</td>
+</tr>
+<tr>
+<td>197</td>
+<td>斩服少女</td>
+<td>9.8</td>
+<td>162.4万</td>
+<td>1878万</td>
+<td>8.3</td>
+</tr>
+<tr>
+<td>198</td>
+<td>野良神 ARAGOTO</td>
+<td>9.4</td>
+<td>251.1万</td>
+<td>1.20亿</td>
+<td>8.3</td>
+</tr>
+<tr>
+<td>199</td>
+<td>Angel Beats!</td>
+<td>9.7</td>
+<td>234.5万</td>
+<td>2055万</td>
+<td>8.3</td>
+</tr>
+<tr>
+<td>200</td>
+<td>×××HOLiC</td>
+<td>9.8</td>
+<td>156.7万</td>
+<td>1993万</td>
+<td>8.3</td>
+</tr>
+</tbody>
+</table>
+<br>
+</article>
+</div>
+<hr>
+<script src=https://utteranc.es/client.js repo=mkideal/blog issue-term=pathname theme=github-light crossorigin=anonymous async></script>
+</div><div id=footer class=mb-5>
+<br>
+<hr>
+<div class="container text-center">
+<a href=https://github.com/mkideal class="fab fa-github fa-1x" title=GitHub></a>
+<a href=https://twitter.com/mkideal class="fab fa-twitter fa-1x" title=Twitter></a>
+<a href=https://facebook.com/mkideal.io class="fab fa-facebook fa-1x" title=Facebook></a>
+<a href=mailto:i@mkideal.com class="fas fa-envelope fa-1x" title=E-mail></a>
+</div>
+</div>
+</body>
+</html>
