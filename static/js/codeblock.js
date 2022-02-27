@@ -36,7 +36,7 @@ window.copyInnerText = function(selector, result) {
 			if (result) {
 				var resultElem = document.querySelector(result);
 				if (resultElem) {
-					resultElem.innerText = "已复制";
+					resultElem.innerText = "Copied";
 				}
 			}
 		});
@@ -878,7 +878,7 @@ function shareCode(options, obj) {
 	obj.time = new Date().getTime();
 	return new Promise(function(resolve, reject) {
 		if (obj.code.length > 65536) {
-			alert("代码过长，无法分享！");
+			alert("Code too long!");
 			resolve("source too long");
 			return;
 		}
@@ -937,10 +937,10 @@ function createTextAlert(text, type) {
 
 function createShareAlert(code, url) {
 	var shareHTML =
-		'<strong>已分享至: </strong><span id="share-output-url" style="cursor: pointer;" ' +
+		'<strong>Shared URL: </strong><span id="share-output-url" style="cursor: pointer;" ' +
 		"onclick=\"copyInnerText('#share-output-url', '#share-output-copy');\"></span> " +
 		"<button type=\"button\" class=\"btn btn-primary\" id=\"share-output-copy\" onclick=\"copyInnerText('#share-output-url', '#share-output-copy');\"" +
-		'>复制</span>';
+		'>Copy</span>';
 	createAlert(shareHTML, "success", function(container) {
 		document.getElementById("share-output-url").innerText = url;
 	});
