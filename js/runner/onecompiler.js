@@ -15,7 +15,7 @@ function Runner(lang) {
 }
 
 Runner.prototype.provider = function() {
-	return {name: playground.host, link: playground.origin + "/" + this.lang};
+	return {name: playground.host, link: playground.origin + "/" + (languagesMapping[this.lang] || this.lang)};
 }
 
 var ignoredError = 'timeout: warning: timer_create: Resource temporarily unavailable';
