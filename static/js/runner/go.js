@@ -5,6 +5,8 @@
 var host =  "gotipplay.golang.org";
 
 var playground = {
+	forward: document.currentScript.getAttribute("data-forward-url"),
+	origin: 'https://' + host,
 	run: 'https://' + host + '/compile',
 	format: 'https://' + host + '/fmt',
 	version: 2,
@@ -49,8 +51,12 @@ Runner.prototype.run = function() {
 			console.log("%s: running", self.lang);
 			self.source = res.Body;
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', playground.run);
+			xhr.open('POST', playground.forward);
 			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			xhr.setRequestHeader("X-Forward-URL", playground.run);
+			xhr.setRequestHeader("X-Forward-Host", host);
+			xhr.setRequestHeader("X-Forward-Origin", playground.origin);
+			xhr.setRequestHeader("X-Forward-Referer", playground.run + "/");
 			var data = codeblock.encodeObjectURI({
 				body: self.source,
 				version: playground.version,
@@ -66,8 +72,12 @@ Runner.prototype.run = function() {
  */
 Runner.prototype.format = function() {
 	var xhr = new XMLHttpRequest();
-	xhr.open('POST', playground.format);
+	xhr.open('POST', playground.forward);
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+	xhr.setRequestHeader("X-Forward-URL", playground.format);
+	xhr.setRequestHeader("X-Forward-Host", host);
+	xhr.setRequestHeader("X-Forward-Origin", playground.origin);
+	xhr.setRequestHeader("X-Forward-Referer", playground.format + "/");
 	return codeblock.sendRequest(xhr, codeblock.encodeObjectURI({
 		imports: "true",
 		body: this.source,
