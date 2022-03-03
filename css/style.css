@@ -36,6 +36,35 @@ html {
     margin: 1rem 0;
 }
 
+#content h1 {
+    margin-top: 32px;
+    margin-bottom: 10px;
+}
+
+#content h2 {
+    margin-top: 28px;
+    margin-bottom: 8px;
+}
+
+#content h3 {
+    margin-top: 24px;
+    margin-bottom: 6px;
+}
+
+#content h4 {
+    margin-top: 20px;
+    margin-bottom: 4px;
+}
+
+#content h5 {
+    margin-top: 16px;
+    margin-bottom: 2px;
+}
+
+#content h6 {
+    margin-top: 12px;
+}
+
 .app-item-content {
     display: flex;
     flex: none;
@@ -93,7 +122,7 @@ html {
 .code-button-container {
   position: absolute;
   right: 1rem;
-  margin: 0.5rem 1rem;
+  margin: 0.5rem 0.2rem;
   display: flex;
   flex-direction: row-reverse;
 }
@@ -337,4 +366,8 @@ html {
 
 .line-numbers {
 	user-select: none;
+}
+
+.center-text {
+	text-align: center;
 }

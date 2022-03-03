@@ -45,15 +45,14 @@
 <div class=container>
 <article>
 <header>
-<h1 class=article-title style=margin-bottom:10px>Go 泛型初步</h1><p><i class="fa-regular fa-calendar"></i> <i class=app-item-time>2022年2月12日</i>
-</p></header><div>
-<span>关键词: </span>
+<p><i class="fa-regular fa-calendar"></i> <span class=app-item-time>2022年2月12日</span>
+</p><h1 class="center-text article-title" style=margin-bottom:10px>Go 泛型初步</h1></header><div>
+<h4 class=text-center style=margin-top:32px;margin-bottom:10px><strong>摘&nbsp;&nbsp;要</strong></h4><span>Go 1.18 版本之后正式引入泛型，它被称作类型参数（type parameters），本文初步介绍 Go 中泛型的使用。</span>
+</div><div style=margin-top:10px>
+<strong>关键词: </strong>
 <code class=keyword>go</code>
 <code class=keyword>泛型</code>
 <code class=keyword>类型参数</code>
-</div><div>
-<span>摘&nbsp;&nbsp;要:</span>
-<i style=color:grey>Go 1.18 版本之后正式引入泛型，它被称作类型参数（type parameters），本文初步介绍 Go 中泛型的使用。</i>
 </div><aside data-toc-type=float-right>
 <span>目录</span>
 <nav id=TableOfContents>
@@ -62,8 +61,7 @@
 <ul>
 <li><a href=#31-泛型版本的求和函数>3.1. 泛型版本的求和函数</a></li><li><a href=#32-使用泛型实现一个类似脚本语言比如-javascript的或运算>3.2. 使用泛型实现一个类似脚本语言（比如 javascript）的或运算</a></li><li><a href=#33-使用泛型实现三元条件运算>3.3. 使用泛型实现三元条件运算</a></li></ul></li><li><a href=#4-类型泛型>4. 类型泛型</a>
 <ul>
-<li><a href=#41-类型泛型的基本使用方法>4.1. 类型泛型的基本使用方法</a></li><li><a href=#42-实现一个通用的事件系统>4.2. 实现一个通用的事件系统</a></li></ul></li><li><a href=#5-结语>5. 结语</a></li></ul></nav></aside><br>
-<h2 id=1-go-的泛型>1. Go 的泛型</h2><p>长期以来 go 都没有泛型的概念，只有接口 <code>interface</code> 偶尔类似的充当泛型的作用，然而接口终究无法满足一些基本的泛型需求，比如</p><p>(1). 函数体内需要对参数做运算而不是使用接口方法，如下的写法连编译都不可行。</p><div class=highlight code=+b><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#75715e>// Sum 函数尝试对输入的任意多个参数求和。
+<li><a href=#41-类型泛型的基本使用方法>4.1. 类型泛型的基本使用方法</a></li><li><a href=#42-实现一个通用的事件系统>4.2. 实现一个通用的事件系统</a></li></ul></li><li><a href=#5-结语>5. 结语</a></li></ul></nav></aside><h2 id=1-go-的泛型>1. Go 的泛型</h2><p>长期以来 go 都没有泛型的概念，只有接口 <code>interface</code> 偶尔类似的充当泛型的作用，然而接口终究无法满足一些基本的泛型需求，比如</p><p>(1). 函数体内需要对参数做运算而不是使用接口方法，如下的写法连编译都不可行。</p><div class=highlight code=+b><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#75715e>// Sum 函数尝试对输入的任意多个参数求和。
 </span></span></span><span style=display:flex><span><span style=color:#75715e>// 然而 interface{} 不可以做加法，这段代码是不能编译的
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Sum</span>(<span style=color:#a6e22e>values</span> <span style=color:#f92672>...</span><span style=color:#66d9ef>interface</span>{}) <span style=color:#66d9ef>interface</span>{} {
 </span></span><span style=display:flex><span>	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>sum</span> <span style=color:#66d9ef>interface</span>{}
