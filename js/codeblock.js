@@ -564,7 +564,7 @@ function addLanguageButton(options, parentNode, code) {
 		numbersPre.style.overflow = "hidden";
 		numbersPre.style.height = "100%";
 		numbersPre.className = "language-c";
-		numbersCode.className = "language-c";
+		numbersCode.className = "line-numbers language-c";
 
 		highlight.className += " codeblock-right";
 		flex.appendChild(highlight);

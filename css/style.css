@@ -334,3 +334,7 @@ html {
 *:focus {
 	outline: 1px solid transparent;
 }
+
+.line-numbers {
+	user-select: none;
+}
