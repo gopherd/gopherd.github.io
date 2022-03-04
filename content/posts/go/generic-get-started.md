@@ -24,7 +24,7 @@ func Sum(values ...interface{}) interface{} {
 }
 ```
 
-(2). 使用接口常常存在极其令人厌恶的接口转换，一个例子是标准库 `container/heap`。`Pop` 方法返回值几乎总是需要在逻辑上再转换为 `Push` 时传入的类型，这使得代码不仅丑陋而且低效（曾经因为 interface{} 实际是 int 类型，但是因为类型转换导致大量的内存分配次数）
+(2). 使用接口常常存在极其令人厌恶的接口转换，一个例子是标准库 `container/heap`。Pop 方法返回值几乎总是需要在逻辑上再转换为 Push 时传入的类型，这使得代码不仅丑陋而且低效（曾经因为 interface{} 实际是 int 类型，但是因为类型转换导致大量的内存分配次数）
 
 ```go {code="-"}
 // Push pushes the element x onto the heap.
@@ -41,7 +41,7 @@ func Pop(h Interface) interface{} {
 }
 ```
 
-因为没有泛型而带来的其他问题就不一一列举，相信许多开发者都有遇到需要泛型的场景。从 go 1.18 版本开始，将正式引入泛型，官方称谓叫做类型参数 `type parameter`，由于各种原因，现阶段的泛型比起一些流行语言中的泛型功能上还是差很多，不过总比没有好了。目前泛型主要使用的方式有两类：`函数`的类型参数，`类型`的类型参数。
+因为没有泛型而带来的其他问题就不一一列举，相信许多开发者都有遇到需要泛型的场景。从 go 1.18 版本开始，将正式引入泛型，官方称谓叫做类型参数 **type parameter**，由于各种原因，现阶段的泛型比起一些流行语言中的泛型功能上还是差很多，不过总比没有好了。目前泛型主要使用的方式有两类：**函数**的类型参数，**类型**的类型参数。
 
 ## 2. 安装 go 1.18 以上的版本
 
@@ -52,7 +52,7 @@ go install golang.org/dl/go1.18beta2@latest
 go1.18beta2 download
 ```
 
-此后可以使用 `go1.18beta2` 命令取代原来的 go 命令编译支持泛型的代码。
+此后可以使用 **go1.18beta2** 命令取代原来的 go 命令编译支持泛型的代码。
 
 ## 3. 函数类型参数
 
@@ -76,13 +76,13 @@ func Sum[T constraints.Integer](values ...T) T {
 
 > constraints 原本是放在标准库的包，但是近期被移除了，改到了 x/exp 中，参见 <a href="https://github.com/golang/go/issues/50792" target="_blank">#50792</a>
 
-这个版本实现了对任意多个同类型的整数求和。`Sum` 后面的中括号 `[]` 内就是定义类型参数的地方，其中 `T` 为类型参数名，`constraints.Integer` 是对该类型参数的约束，即 T 应该满足的条件，在这里我们要求 `T` 是一个整数。剩下的代码就和普通没有泛型的代码一致了，只不过后面 T 可以当作一个类型来使用。标准库 `constraints` 中预定义了一些基本的约束，另外还有两个特殊的内置类型可用作约束：`any` 和 `comparable`，其中 `any` 就是原来的 `interface{}`，在 go1.18 开始所有空 interface{} 都改成 any 了，而 `comparable` 则表示类型是可以通过 `==` 运算符进行比较的。
+这个版本实现了对任意多个同类型的整数求和。Sum 后面的中括号 `[]` 内就是定义类型参数的地方，其中 T 为类型参数名，constraints.Integer 是对该类型参数的约束，即 T 应该满足的条件，在这里我们要求 T 是一个整数。剩下的代码就和普通没有泛型的代码一致了，只不过后面 T 可以当作一个类型来使用。
 
 > go 的泛型参数为什么不使用其他流行语言的 `< >` 定义泛型？这个主要是会引起语法上的歧义，比如下面这一段代码
 >
 > x, y := a < b, c > d
 
-现在可以来使用一下刚才定义的 `Sum` 方法：
+现在可以来使用一下刚才定义的 Sum 方法：
 
 ```go {code="sum+x"}
 func main() {
@@ -103,7 +103,7 @@ func main() {
 }
 ```
 
-这个版本仍有一些问题，比如可以做加法的不止整数啊，还有浮点数，甚至是复数。修改类型参数 `T` 的约束来支持浮点数和复数：
+这个版本仍有一些问题，比如可以做加法的不止整数啊，还有浮点数，甚至是复数。修改类型参数 T 的约束来支持浮点数和复数：
 
 ```go {code="sum2+x"}
 import (
@@ -123,9 +123,9 @@ func main() {
 }
 ```
 
-通过符号 `|` 连接多个约束表示 `T` 只需满足其中任意一个。
+通过符号 `|` 连接多个约束表示 T 只需满足其中任意一个。
 
-`Sum` 函数的例子只用了一个类型参数，go 的类型参数也支持多个，这个定义和函数参数的格式类似。
+Sum 函数的例子只用了一个类型参数，go 的类型参数也支持多个，这个定义和函数参数的格式类似。
 
 ```go {code="-"}
 func FuncA[T, U any]() {
@@ -141,7 +141,7 @@ func FuncB[T any, U, V comparable]() {
 
 ### 3.2. 使用泛型实现一个类似脚本语言（比如 javascript）的或运算
 
-这个例子用于判定 `a` 是否为 zero 值，如果是则返回 `b`，反之返回 `a`。
+这个例子用于判定 a 是否为 zero 值，如果是则返回 b，反之返回 a。
 
 ```go {code="$+x"}
 func Or[T comparable](a, b T) T {
@@ -172,7 +172,7 @@ func main() {
 
 > javascript 中的 `a || b()` 不同于此处的 `Or(a, b())`，前者在 a 非空时不会调用函数 b
 
-可以再实现一个延迟函数调用的版本 `OrNew` 处理这种情况：
+可以再实现一个延迟函数调用的版本 OrNew 处理这种情况：
 
 ```go {code="$+x"}
 func Or[T comparable](a, b T) T {
@@ -209,7 +209,7 @@ func main() {
 
 ### 3.3. 使用泛型实现三元条件运算
 
-go 语言不存在三元条件运算符 `<condition>? value1 : value2`，导致经常存在需要这种场景时只好用 `if` 写好几行的代码，不过现在可以通过泛型实现一个条件运算了。
+go 语言不存在三元条件运算符 `<condition>? value1 : value2`，导致经常存在需要这种场景时只好用 if 写好几行的代码，不过现在可以通过泛型实现一个条件运算了。
 
 ```go {code="$+x"}
 func If[T any](yes bool, a, b T) T {
@@ -241,7 +241,7 @@ func main() {
 
 ### 4.1. 类型泛型的基本使用方法
 
-以一个 c++ 的 `std::pair` 为例，来说明 go 的类型泛型的使用。`pair` 包含 first 和 second 两个成员，并且每一个都有独立的类型，所以我们需要两个类型参数，先看代码：
+以一个 c++ 的 std::pair 为例，来说明 go 的类型泛型的使用。pair 包含 first 和 second 两个成员，并且每一个都有独立的类型，所以我们需要两个类型参数，先看代码：
 
 ```go
 type Pair[T1, T2 any] struct {
@@ -260,9 +260,9 @@ func (pair Pair[T1, T2]) Elements() (T1, T2) {
 
 在定义 Pair 时在类型名称之后使用 `[T1, T2 any]` 定义了类型参数，即 T1, T2 都可以是任意类型。
 
-然后定义了泛型函数 `MakePair` 用于创建 Pair 对象，函数的返回值类型为 `Pair[T1, T2]`。
+然后定义了泛型函数 MakePair 用于创建 Pair 对象，函数的返回值类型为 Pair[T1, T2]。
 
-最后实现了 Pair 的成员方法 `Elements` 返回两个成员值，这个函数看起来很无聊，似乎没什么用，就是用来展示如何定义泛型类型的成员方法。和一般的类型的成员方法的定义的区别在于类型 Pair 之后必须要使用声明 Pair 类型时定义的类型参数（就是这里的 `[T1, T2]`）。
+最后实现了 Pair 的成员方法 Elements 返回两个成员值，这个函数看起来很无聊，似乎没什么用，就是用来展示如何定义泛型类型的成员方法。和一般的类型的成员方法的定义的区别在于类型 Pair 之后必须要使用声明 Pair 类型时定义的类型参数（就是这里的 `[T1, T2]`）。
 
 另外 go 的泛型目前不支持给成员方法声明新的类型参数，比如这种成员方法的定义就不允许：
 
@@ -271,7 +271,7 @@ func (pair Pair[T1, T2]) Elements() (T1, T2) {
 func (pair Pair[T1, T2]) Something[T any]() {}
 ```
 
-除了 `struct` 之外，interface 的定义也支持类型参数（但是它的接口方法不支持类型参数），但是 `type alias` 不支持类型参数
+除了 struct 之外，interface 的定义也支持类型参数（但是它的接口方法不支持类型参数），但是 type alias 不支持类型参数
 
 ```go {code="-"}
 type Interface[T any] interface {
@@ -295,7 +295,7 @@ type Slice[T any] []T
 type Vector[T any] = []T
 ```
 
-类型约束除了内置的 `any`, `comparable` 以及 `golang.org/x/exp/constraints` 中定义的之外，也可以使用自己定义的任意接口用作约束，就像上例中的 `User`。另外现在除了以前概念中的 interface 定义之外，还有一种纯粹只能用于类型参数约束的 interface。像这类使用了基础类型或者 `|` 运算的接口。
+类型约束除了内置的 any, comparable 以及 golang.org/x/exp/constraints 中定义的之外，也可以使用自己定义的任意接口用作约束，就像上例中的 User。另外现在除了以前概念中的 interface 定义之外，还有一种纯粹只能用于类型参数约束的 interface。像这类使用了基础类型或者 `|` 运算的接口。
 
 ```go {code="-"}
 // 实数约束 Real 只能用于类型参数约束，而不能作为普通参数或变量类型。
@@ -325,7 +325,7 @@ type PureString interface {
 type Name string
 ```
 
-go 1.18 开始引入一个新的符号 `~` 用于约束前缀，这表示该约束包含 underlying 为该类型的参数。比如上面的 `Name` 类型的 underlying 是 string，所以 `Name` 也满足 `String` 约束，但是不满足 `PureString` 约束。
+go 1.18 开始引入一个新的符号 `~` 用于约束前缀，这表示该约束包含 underlying 为该类型的参数。比如上面的 Name 类型的 underlying 是 string，所以 Name 也满足 String 约束，但是不满足 PureString 约束。
 
 ### 4.2. 实现一个通用的事件系统
 
@@ -347,7 +347,7 @@ type Event[T comparable] interface {
 }
 ```
 
-然后定一个事件处理接口 `Listener`，同时为了使用方便实现一个内置的 listener
+然后定一个事件处理接口 Listener，同时为了使用方便实现一个内置的 listener
 
 ```go
 // Listener 接口用于处理被触发的事件
@@ -379,7 +379,7 @@ func (h listenerFunc[T, E]) Handle(event Event[T]) {
 }
 ```
 
-上面这段代码需要特别说明一下 `Listen` 函数，该函数有 2 个类型参数 `T` 和 `E`，前者是事件类别的类型参数，后者是事件类型参数，而 `E` 的约束 `Event[T]` 中依赖了前一个泛型参数，这样一来事件处理函数 `handler` 的参数就不再是 `Event` 接口而是一个泛型参数了，这避免了每次在回调函数中进行一次类型转换（因为已经统一在 listenerFunc.Handle 中转换了）。比如以前经常是这样写回调函数
+上面这段代码需要特别说明一下 `Listen` 函数，该函数有 2 个类型参数 T 和 E，前者是事件类别的类型参数，后者是事件类型参数，而 E 的约束 Event[T] 中依赖了前一个泛型参数，这样一来事件处理函数 handler 的参数就不再是 Event 接口而是一个泛型参数了，这避免了每次在回调函数中进行一次类型转换（因为已经统一在 listenerFunc.Handle 中转换了）。比如以前经常是这样写回调函数
 
 ```go {code="-"}
 func onSomething(event Event) error {
@@ -399,7 +399,7 @@ func onSomething(event *SomethingEvent) error {
 }
 ```
 
-接下来实现事件派发管理器 `Dispatcher`。`Dispatcher` 需要实现事件注册(Add)，删除(Remove)，检查(Has)和派发(Dispatch) 方法。
+接下来实现事件派发管理器 Dispatcher。Dispatcher 需要实现事件注册(Add)，删除(Remove)，检查(Has)和派发(Dispatch) 方法。
 
 ```go
 // Dispatcher 管理事件注册与派发
