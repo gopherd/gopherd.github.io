@@ -1,3 +1,10 @@
+:root {
+	--header-background-color: #24292f;
+	--body-background-color: #f6f8fa;
+	--toc-float-right-width: 300px;
+	--toc-float-right-padding: 60px;
+}
+
 a {
     color: #1a0dab;
     text-decoration: none;
@@ -17,7 +24,7 @@ html {
 }
 
 body {
-	background: #f6f8fa!important;
+	background: var(--body-background-color) !important;
 }
 
 .badge {
@@ -144,12 +151,7 @@ body {
 }
 
 .highlight pre {
-	background-color: white !important;
-}
-
-:root {
-	--toc-float-right-width: 300px;
-	--toc-float-right-padding: 60px;
+	background-color: var(--body-background-color) !important;
 }
 
 [data-toc-type="float-right"] {
@@ -261,7 +263,7 @@ body {
 }
 
 #content .codeblock-left {
-	width: 3.0rem;
+	width: 2.75rem;
 	padding: 0;
 	margin: 0 -1px 0 0;
 	flex-shrink: 0;
@@ -277,8 +279,10 @@ body {
 	border-top-right-radius: 0px;
     border-bottom-right-radius: 0px;
 	box-shadow: none;
+	/*
 	padding-left: 10px;
     padding-right: 10px;
+	*/
     text-align: right;
     color: grey;
 	overflow: hidden;
@@ -379,7 +383,7 @@ body {
 #container-header {
 	margin-top: 0rem!important;
 	margin-bottom: 1rem!important;
-	background-color: #24292f;
+	background-color: var(--header-background-color);
 }
 
 #container-header * {
