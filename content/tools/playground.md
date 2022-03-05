@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded',function(){
 			shareId: getParameterByName("id"),
 			selector: "#languages-selector",
 			editor: "global-code-editor",
-			lang: getLocalLang(),
+			lang: getParameterByName("lang") || getLocalLang(),
 			recorder: function(lang) {
 				console.log("set recorder", lang);
 				try {
