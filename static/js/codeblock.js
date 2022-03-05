@@ -975,14 +975,41 @@ function runProgram(id, program) {
 				break;
 			}
 		}
+		var block = blocks.length === 1 ? blocks[0] : null;
+		var editable = block && block.code.getAttribute("contenteditable") === "true";
 		try {
 			var runner = new Runner(lang);
 			runner.parse(selected);
-			runner.run().then(resolve).catch(reject);
+			if (block && editable) {
+				block.code.setAttribute("contenteditable", "false");
+			}
+			runner.run().then(function(res) {
+				if (block && editable) {
+					block.code.setAttribute("contenteditable", "true");
+					if (runner.source && runner.source !== block.source) {
+						block.source = runner.source;
+						refreshEditor(block);
+					}
+				}
+				resolve(res);
+			}).catch(function(err) {
+				if (block && editable) {
+					block.code.setAttribute("contenteditable", "true");
+				}
+				reject(err);
+			});
 		} catch (e) {
 			reject(e + "");
 		}
 	});
+}
+
+
+function isBase64Image(v) {
+	var base64ImageRegex = new RegExp('^(data:image\\/[a-zA-Z\\+\\-\\.]+;base64,)(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\/]{3}=)?$', 'gi');
+	v = v.trim();
+	var yes = base64ImageRegex.test(v);
+	return yes;
 }
 
 /**
@@ -1023,6 +1050,12 @@ function createCodeOutput(options, block, results) {
 	appendOutput(options, results, output, 0, false);
 }
 
+function createBase64Image(content) {
+	var img = document.createElement("img");
+	img.src = content;
+	return img;
+}
+
 function appendOutput(options, results, output, index, delayed) {
 	if (!results || !results.length) {
 		return;
@@ -1031,30 +1064,41 @@ function appendOutput(options, results, output, index, delayed) {
 		var e = results[i];
 		if (!delayed && e.Delay > 0) {
 			var nextIndex = i;
-			console.log("timeout:", e.Delay);
 			setTimeout(function() {
 				appendOutput(options, results, output, nextIndex, true);
 			}, e.Delay / 1e6);
 			return;
 		}
 		delayed = false;
-		if (results[i].Kind === exports.Stderr) {
-			var span = document.createElement("span");
-			span.innerText = results[i].Message;
-			span.style = options.errorOutputStyle;
-			output.appendChild(span);
-			continue;
-		}
-		var hasFlush = results[i].Message.startsWith("\f");
-		if (hasFlush && output.lastChild && output.lastChild.getAttribute("data-has-flush") === "true") {
-			output.lastChild.innerText = results[i].Message;
-		} else {
-			var span = document.createElement("span");
-			span.innerText = results[i].Message;
-			if (hasFlush) {
-				span.setAttribute("data-has-flush", "true");
+		var lines = e.Message.split('\n');
+		console.log("lines", lines.length);
+		for (var j = 0; j < lines.length; j++) {
+			var line = j === 0 ? lines[j] : ('\n' + lines[j]);
+			if (!line) {
+				continue;
 			}
-			output.appendChild(span);
+			if (isBase64Image(line)) {
+				output.appendChild(createBase64Image(line.trim()));
+				continue;
+			}
+			if (e.Kind === exports.Stderr) {
+				var span = document.createElement("span");
+				span.innerText = line;
+				span.style = options.errorOutputStyle;
+				output.appendChild(span);
+				continue;
+			}
+			var hasFlush = line.startsWith("\f");
+			if (hasFlush && output.lastChild && output.lastChild.getAttribute("data-has-flush") === "true") {
+				output.lastChild.innerText = line;
+			} else {
+				var span = document.createElement("span");
+				span.innerText = line;
+				if (hasFlush) {
+					span.setAttribute("data-has-flush", "true");
+				}
+				output.appendChild(span);
+			}
 		}
 	}
 }
