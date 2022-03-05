@@ -1100,7 +1100,6 @@ function appendOutput(options, results, output, index, delayed) {
 					if (isBase64Image(text)) {
 						var img = createBase64Image(text.trim());
 						img.style.flexShrink = "1";
-						img.style.alignSelf = "flex-end";
 						flex.appendChild(img);
 						continue;
 					}
@@ -1109,7 +1108,6 @@ function appendOutput(options, results, output, index, delayed) {
 						flex.appendChild(span);
 						span.innerText = text;
 						span.style = options.errorOutputStyle;
-						span.style.alignSelf = "flex-end";
 						continue;
 					}
 					if (text.startsWith("\f")) {
@@ -1120,7 +1118,6 @@ function appendOutput(options, results, output, index, delayed) {
 					var span = document.createElement("span");
 					flex.appendChild(span);
 					span.innerText = text;
-					span.style.alignSelf = "flex-end";
 				}
 			} else {
 				if (e.Kind === exports.Stderr) {
