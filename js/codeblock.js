@@ -888,7 +888,7 @@ function shareCode(options, obj) {
 		}).then(function(res) {
 			console.log("insert success: ", res.insertedId);
 			resolve({
-				url: options.shareCodeURL + "?id=" + res.insertedId
+				url: options.shareCodeURL + "?lang=" + obj.lang + "&id=" + res.insertedId
 			});
 		}).catch(reject);
 	});
@@ -1209,9 +1209,12 @@ exports.bindSelector = function(options) {
 		block.lang = lang;
 		changeEditorLang(options, block, languageCodes);
 	});
+	selector.value = options.lang || "go";
+	block.lang = selector.value;
 	if (options.shareId) {
 		code.setAttribute("contenteditable", "false");
 		block.source = "Loading ...";
+		updateBackend(block.lang);
 		mongo.send(mongo.actions.findOne, {
 			collection: "share-code",
 			filter: {_id: {"$oid": options.shareId}},
@@ -1227,9 +1230,6 @@ exports.bindSelector = function(options) {
 			code.setAttribute("contenteditable", "true");
 		});
 	} else {
-		selector.value = options.lang || "go";
-		console.log("selector.value", selector.value);
-		block.lang = selector.value;
 		changeEditorLang(options, block, languageCodes);
 	}
 }
@@ -1271,9 +1271,13 @@ function refreshEditor(block) {
 	if (undoButton) {
 		undoButton.hidden = block.history.length <= 1;
 	}
-	var Runner = codeblock.runners[block.lang];
+	updateBackend(block.lang);
+}
+
+function updateBackend(lang) {
+	var Runner = codeblock.runners[lang];
 	if (Runner) {
-		var runner = new Runner(block.lang);
+		var runner = new Runner(lang);
 		var provider = runner.provider();
 		if (provider) {
 			var backend = document.getElementById("code-backend");
