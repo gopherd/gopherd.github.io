@@ -326,14 +326,16 @@ body {
 }
 
 #content .codeblock-output pre {
-	overflow: unset;
+	overflow: none !important;
 }
 
 #content .codeblock-output code {
 	box-shadow: none;
 	border-top-left-radius: 0px;
     border-top-right-radius: 0px;
-	overflow: auto;
+	overflow: none !important;
+	overflow-wrap: anywhere;
+	white-space: pre-wrap;
 }
 
 ::-webkit-scrollbar {

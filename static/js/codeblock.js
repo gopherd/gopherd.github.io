@@ -720,7 +720,6 @@ function highlightBlock(grammer, block, cursor, source) {
 	}
 	block.code.innerHTML = res;
 	block.highlighted = true;
-	console.log("highlightBlock:", res);
 	setCaret(block.code, cursor);
 }
 
@@ -739,7 +738,6 @@ function updateCodeBlock(block, cursor) {
 				if (!block.highlighted && block.version === version) {
 					requestAnimationFrame(tryHighlight);
 					var grammer = codeblock.highlighter.languages[exports.syntaxName(block.lang)];
-					console.log("tryHighlight:", JSON.stringify(source), block.lang, !!grammer);
 					if (grammer) {
 						highlightBlock(grammer, block, cursor, source);
 					}
@@ -886,7 +884,6 @@ function shareCode(options, obj) {
 			collection: "share-code",
 			document: obj
 		}).then(function(res) {
-			console.log("insert success: ", res.insertedId);
 			resolve({
 				url: options.shareCodeURL + "?lang=" + obj.lang + "&id=" + res.insertedId
 			});
@@ -899,7 +896,6 @@ var alertElementId = "alert-top-fixed";
 function clearAlert() {
 	var child = document.getElementById(alertElementId);
 	if (child) {
-		console.log("remove child", child);
 		child.parentNode.removeChild(child);
 	}
 }
@@ -1070,33 +1066,75 @@ function appendOutput(options, results, output, index, delayed) {
 			return;
 		}
 		delayed = false;
+
+		// split to lines
 		var lines = e.Message.split('\n');
-		console.log("lines", lines.length);
+		var flex;
 		for (var j = 0; j < lines.length; j++) {
 			var line = j === 0 ? lines[j] : ('\n' + lines[j]);
 			if (!line) {
 				continue;
 			}
-			if (isBase64Image(line)) {
-				output.appendChild(createBase64Image(line.trim()));
-				continue;
-			}
-			if (e.Kind === exports.Stderr) {
-				var span = document.createElement("span");
-				span.innerText = line;
-				span.style = options.errorOutputStyle;
-				output.appendChild(span);
-				continue;
-			}
-			var hasFlush = line.startsWith("\f");
-			if (hasFlush && output.lastChild && output.lastChild.getAttribute("data-has-flush") === "true") {
-				output.lastChild.innerText = line;
-			} else {
-				var span = document.createElement("span");
-				span.innerText = line;
-				if (hasFlush) {
-					span.setAttribute("data-has-flush", "true");
+			// split to columns
+			var columns = line.split('\t');
+			flex = null;
+			for (var k = 0; k < columns.length; k++) {
+				var text = k === 0 ? columns[k] : ('\t' + columns[k]);
+				if (isBase64Image(text)) {
+					flex = document.createElement("div");
+					flex.style.display = "flex";
+					flex.style.justifyContent = "center";
+					flex.style.alignItems = "end";
+					output.appendChild(flex);
+					break;
 				}
+			}
+			if (flex) {
+				for (var k = 0; k < columns.length; k++) {
+					var text = k === 0 ? columns[k] : ('\t' + columns[k]);
+					if (k > 0) {
+						var span = document.createElement("span");
+						flex.appendChild(span);
+						span.innerText = '\t';
+					}
+					if (isBase64Image(text)) {
+						var img = createBase64Image(text.trim());
+						img.style.flexShrink = "1";
+						img.style.alignSelf = "flex-end";
+						flex.appendChild(img);
+						continue;
+					}
+					if (e.Kind === exports.Stderr) {
+						var span = document.createElement("span");
+						flex.appendChild(span);
+						span.innerText = text;
+						span.style = options.errorOutputStyle;
+						span.style.alignSelf = "flex-end";
+						continue;
+					}
+					if (text.startsWith("\f")) {
+						flex.innerHTML = '';
+						output.innerHTML = '';
+						output.appendChild(flex);
+					}
+					var span = document.createElement("span");
+					flex.appendChild(span);
+					span.innerText = text;
+					span.style.alignSelf = "flex-end";
+				}
+			} else {
+				if (e.Kind === exports.Stderr) {
+					var span = document.createElement("span");
+					span.innerText = line;
+					span.style = options.errorOutputStyle;
+					output.appendChild(span);
+					continue;
+				}
+				if (line.startsWith("\f")) {
+					output.innerHTML = '';
+				}
+				var span = document.createElement("span");
+				span.innerText = line;
 				output.appendChild(span);
 			}
 		}
@@ -1219,7 +1257,6 @@ exports.bindSelector = function(options) {
 			collection: "share-code",
 			filter: {_id: {"$oid": options.shareId}},
 		}).then(function(res) {
-			console.log("load shared code:", res);
 			code.setAttribute("contenteditable", "true");
 			block.lang = res.document.lang;
 			block.source = res.document.code;
