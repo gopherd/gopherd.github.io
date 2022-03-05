@@ -25,6 +25,7 @@ html {
 
 body {
 	background: var(--body-background-color) !important;
+	font-size: 110%;
 }
 
 .badge {
