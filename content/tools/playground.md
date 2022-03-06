@@ -111,7 +111,7 @@ document.addEventListener('DOMContentLoaded',function(){
 })
 </script>
 
-```ada {code="global-code-editor+xws" id="global-code-editor" code-height="350px,500px"}
+```ada {code="global-code-editor+xws" id="global-code-editor" code-height="350px,600px"}
 with Ada.Text_IO; use Ada.Text_IO;
 procedure Hello is
 begin

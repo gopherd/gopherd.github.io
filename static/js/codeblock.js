@@ -1000,9 +1000,22 @@ function runProgram(id, program) {
 	});
 }
 
+window.resizeIFrameToFitContent = function( iFrame ) {
+    iFrame.style.width  = iFrame.contentWindow.document.body.scrollWidth + 'px';
+    iFrame.style.height = iFrame.contentWindow.document.body.scrollHeight + 'px';
+	console.log("resizeIFrameToFitContent", iFrame.style.width, iFrame.style.height);
+}
+
 
 function isBase64Image(v) {
-	var base64ImageRegex = new RegExp('^(data:image\\/[a-zA-Z\\+\\-\\.]+;base64,)(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\/]{3}=)?$', 'gi');
+	var base64ImageRegex = new RegExp('^(data:image\\/[a-zA-Z0-9\\+\\-\\.]+;base64,)(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\/]{3}=)?$', 'gi');
+	v = v.trim();
+	var yes = base64ImageRegex.test(v);
+	return yes;
+}
+
+function isBase64HTML(v) {
+	var base64ImageRegex = new RegExp('^(data:text\\/html;[a-zA-Z0-9\\+\\-\\. =;]+;base64,)(?:[A-Za-z0-9+\\/]{4})*(?:[A-Za-z0-9+\\/]{2}==|[A-Za-z0-9+\/]{3}=)?$', 'gi');
 	v = v.trim();
 	var yes = base64ImageRegex.test(v);
 	return yes;
@@ -1047,8 +1060,6 @@ function createCodeOutput(options, block, results) {
 }
 
 function createBase64Image(content) {
-	var img = document.createElement("img");
-	img.src = content;
 	return img;
 }
 
@@ -1080,7 +1091,7 @@ function appendOutput(options, results, output, index, delayed) {
 			flex = null;
 			for (var k = 0; k < columns.length; k++) {
 				var text = k === 0 ? columns[k] : ('\t' + columns[k]);
-				if (isBase64Image(text)) {
+				if (isBase64HTML(text)) {
 					flex = document.createElement("div");
 					flex.style.display = "flex";
 					flex.style.justifyContent = "center";
@@ -1098,9 +1109,21 @@ function appendOutput(options, results, output, index, delayed) {
 						span.innerText = '\t';
 					}
 					if (isBase64Image(text)) {
-						var img = createBase64Image(text.trim());
+						var img = document.createElement("img");
+						img.src = text.trim();
 						img.style.flexShrink = "1";
 						flex.appendChild(img);
+						continue;
+					} else if (isBase64HTML(text.trim())) {
+						text = text.trim();
+						var separator = ";base64,";
+						var base64 = text.substr(text.indexOf(separator) + separator.length);
+						var blob = new Blob([atob(base64)], {type: "text/html"});
+						var iframe = document.createElement("iframe");
+						iframe.src = URL.createObjectURL(blob);
+						iframe.setAttribute("onload", 'javascript:(function(o){o.style.height=o.contentWindow.document.body.scrollHeight+"px";}(this));');
+						iframe.style = "width: 100%; height: 100%; border:none; overflow:hidden;";
+						flex.appendChild(iframe);
 						continue;
 					}
 					if (e.Kind === exports.Stderr) {
