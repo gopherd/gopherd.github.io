@@ -1,20 +1,6 @@
-<!doctype html><html lang><head>
-<meta charset=utf-8>
-<meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no">
-<title>Go 泛型初步</title><meta name=description content="mkideal's Blog">
-<meta name=author content="mkideal">
-<link rel=stylesheet href=/css/fonts.css>
-<link rel=stylesheet href=/css/bootstrap.min.css>
-<link rel=stylesheet href=/font-awesome/css/all.min.css>
-<link rel=stylesheet href=/sass/researcher.min.css>
-<link rel="short icon" type=image/ico href="https://gopherd.com/favicon.ico?v=1.0">
-<link rel=icon type=image/ico href="https://gopherd.com/favicon.ico?v=1.0">
-<script data-ad-client=ca-pub-4848513853142926 async src=https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js></script>
+<!doctype html><html lang><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>Go 泛型初步</title><meta name=description content="mkideal's Blog"><meta name=author content="mkideal"><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/font-awesome/css/all.min.css><link rel=stylesheet href=/sass/researcher.min.css><link rel="short icon" type=image/ico href="https://gopherd.com/favicon.ico?v=1.0"><link rel=icon type=image/ico href="https://gopherd.com/favicon.ico?v=1.0"><script data-ad-client=ca-pub-4848513853142926 async src=https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-77412491-1"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-77412491-1")</script>
-<link rel=stylesheet href=/css/style.css>
-<link rel=stylesheet href=/css/prism.css>
-<script src=https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-core.min.js></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-77412491-1")</script><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/prism.css><script src=https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-core.min.js></script>
 <script src=https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/plugins/autoloader/prism-autoloader.min.js></script>
 <script src=/js/lib/jquery-3.6.0.min.js></script>
 <script src=/js/lib/bootstrap.bundle.min.js></script>
@@ -25,42 +11,12 @@
 <script src=/js/runner/lua.js data-forward-url=https://code.gopherd.com/forward></script>
 <script src=/js/runner/sololearn.js data-forward-url=https://code.gopherd.com/forward></script>
 <script src=/js/runner/onecompiler.js data-forward-url=https://code.gopherd.com/forward></script>
-<script>codeblock.init({shareCodeURL:"https://gopherd.com/tools/playground"});var oldHighlightAll=Prism.highlightAll;Prism.highlightAll=function(e,t){document.querySelectorAll('code:not([data-lang=""])').forEach(function(e){var t=e.getAttribute("data-lang"),n;t&&(n=codeblock.syntaxName(t),t!==n&&(e.className&&e.className.includes("language-"+t)&&(e.className=e.className.replace("language-"+t,"")),(!e.className||!e.className.includes("language-"+n))&&(console.log("add syntax class",n),e.className=(e.className||"")+" language-"+n)))}),oldHighlightAll(e,t)},$(function(){$('[data-toggle="tooltip"]').tooltip({trigger:"hover",delay:{show:250,hide:250}}),navigator&&/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)&&$(document).on("shown.bs.tooltip",function(e){setTimeout(function(){$(e.target).tooltip("hide")},2e3)})})</script>
-</head><body><div id=container-header>
-<div class="container mt-5" style=margin-top:0!important>
-<nav class="navbar navbar-expand-sm flex-column flex-sm-row text-nowrap p-0">
-<a class="navbar-brand mx-0 mr-sm-auto" href=https://gopherd.com/ title>
-<img src=https://gopherd.com/img/logo.svg width=187 height=34 alt=logo>
-</a>
-<div class="navbar-nav flex-row flex-wrap justify-content-center">
-<a class="nav-item nav-link" href=/ title=主页>
-主页
-</a>
+<script>codeblock.init({shareCodeURL:"https://gopherd.com/tools/playground"});var oldHighlightAll=Prism.highlightAll;Prism.highlightAll=function(e,t){document.querySelectorAll('code:not([data-lang=""])').forEach(function(e){var t=e.getAttribute("data-lang"),n;t&&(n=codeblock.syntaxName(t),t!==n&&(e.className&&e.className.includes("language-"+t)&&(e.className=e.className.replace("language-"+t,"")),(!e.className||!e.className.includes("language-"+n))&&(console.log("add syntax class",n),e.className=(e.className||"")+" language-"+n)))}),oldHighlightAll(e,t)},$(function(){$('[data-toggle="tooltip"]').tooltip({trigger:"hover",delay:{show:250,hide:250}}),navigator&&/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)&&$(document).on("shown.bs.tooltip",function(e){setTimeout(function(){$(e.target).tooltip("hide")},2e3)})})</script></head><body><div id=container-header><div class="container mt-5" style=margin-top:0!important><nav class="navbar navbar-expand-sm flex-column flex-sm-row text-nowrap p-0"><a class="navbar-brand mx-0 mr-sm-auto" href=https://gopherd.com/ title><img src=https://gopherd.com/img/logo.svg width=187 height=34 alt=logo></a><div class="navbar-nav flex-row flex-wrap justify-content-center"><a class="nav-item nav-link" href=/ title=主页>主页</a>
 <span class="nav-item navbar-text mx-1">/</span>
-<a class="nav-item nav-link" href=/tools title=工具>
-工具
-</a>
-</div></nav></div></div><div id=content>
-<div class=container>
-<article>
-<header>
-<p><i class="fa-regular fa-calendar"></i> <span class=app-item-time>2022年2月12日</span>
-</p><h1 class="center-text article-title" style=margin-bottom:10px>Go 泛型初步</h1></header><div>
-<h4 class=text-center style=margin-top:32px;margin-bottom:10px><strong>摘&nbsp;&nbsp;要</strong></h4><span>Go 1.18 版本之后正式引入泛型，它被称作类型参数（type parameters），本文初步介绍 Go 中泛型的使用。</span>
-</div><div style=margin-top:10px>
-<strong>关键词: </strong>
+<a class="nav-item nav-link" href=/tools title=工具>工具</a></div></nav></div></div><div id=content><div class=container><article><header><p><i class="fa-regular fa-calendar"></i> <span class=app-item-time>2022年2月12日</span></p><h1 class="center-text article-title" style=margin-bottom:10px>Go 泛型初步</h1></header><div><h4 class=text-center style=margin-top:32px;margin-bottom:10px><strong>摘&nbsp;&nbsp;要</strong></h4><span>Go 1.18 版本之后正式引入泛型，它被称作类型参数（type parameters），本文初步介绍 Go 中泛型的使用。</span></div><div style=margin-top:10px><strong>关键词:</strong>
 <code class=keyword>go</code>
 <code class=keyword>泛型</code>
-<code class=keyword>类型参数</code>
-</div><aside data-toc-type=float-right>
-<span>目录</span>
-<nav id=TableOfContents>
-<ul>
-<li><a href=#1-go-的泛型>1. Go 的泛型</a></li><li><a href=#2-安装-go-118-以上的版本>2. 安装 go 1.18 以上的版本</a></li><li><a href=#3-函数类型参数>3. 函数类型参数</a>
-<ul>
-<li><a href=#31-泛型版本的求和函数>3.1. 泛型版本的求和函数</a></li><li><a href=#32-使用泛型实现一个类似脚本语言比如-javascript的或运算>3.2. 使用泛型实现一个类似脚本语言（比如 javascript）的或运算</a></li><li><a href=#33-使用泛型实现三元条件运算>3.3. 使用泛型实现三元条件运算</a></li></ul></li><li><a href=#4-类型泛型>4. 类型泛型</a>
-<ul>
-<li><a href=#41-类型泛型的基本使用方法>4.1. 类型泛型的基本使用方法</a></li><li><a href=#42-实现一个通用的事件系统>4.2. 实现一个通用的事件系统</a></li></ul></li><li><a href=#5-结语>5. 结语</a></li></ul></nav></aside><h2 id=1-go-的泛型>1. Go 的泛型</h2><p>长期以来 go 都没有泛型的概念，只有接口 <code>interface</code> 偶尔类似的充当泛型的作用，然而接口终究无法满足一些基本的泛型需求，比如</p><p>(1). 函数体内需要对参数做运算而不是使用接口方法，如下的写法连编译都不可行。</p><div class=highlight code=+b><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#75715e>// Sum 函数尝试对输入的任意多个参数求和。
+<code class=keyword>类型参数</code></div><aside data-toc-type=float-right><span>目录</span><nav id=TableOfContents><ul><li><a href=#1-go-的泛型>1. Go 的泛型</a></li><li><a href=#2-安装-go-118-以上的版本>2. 安装 go 1.18 以上的版本</a></li><li><a href=#3-函数类型参数>3. 函数类型参数</a><ul><li><a href=#31-泛型版本的求和函数>3.1. 泛型版本的求和函数</a></li><li><a href=#32-使用泛型实现一个类似脚本语言比如-javascript的或运算>3.2. 使用泛型实现一个类似脚本语言（比如 javascript）的或运算</a></li><li><a href=#33-使用泛型实现三元条件运算>3.3. 使用泛型实现三元条件运算</a></li></ul></li><li><a href=#4-类型泛型>4. 类型泛型</a><ul><li><a href=#41-类型泛型的基本使用方法>4.1. 类型泛型的基本使用方法</a></li><li><a href=#42-实现一个通用的事件系统>4.2. 实现一个通用的事件系统</a></li></ul></li><li><a href=#5-结语>5. 结语</a></li></ul></nav></aside><h2 id=1-go-的泛型>1. Go 的泛型</h2><p>长期以来 go 都没有泛型的概念，只有接口 <code>interface</code> 偶尔类似的充当泛型的作用，然而接口终究无法满足一些基本的泛型需求，比如</p><p>(1). 函数体内需要对参数做运算而不是使用接口方法，如下的写法连编译都不可行。</p><div class=highlight code=+b><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#75715e>// Sum 函数尝试对输入的任意多个参数求和。
 </span></span></span><span style=display:flex><span><span style=color:#75715e>// 然而 interface{} 不可以做加法，这段代码是不能编译的
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Sum</span>(<span style=color:#a6e22e>values</span> <span style=color:#f92672>...</span><span style=color:#66d9ef>interface</span>{}) <span style=color:#66d9ef>interface</span>{} {
 </span></span><span style=display:flex><span>	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>sum</span> <span style=color:#66d9ef>interface</span>{}
@@ -81,7 +37,7 @@
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Pop</span>(<span style=color:#a6e22e>h</span> <span style=color:#a6e22e>Interface</span>) <span style=color:#66d9ef>interface</span>{} {
 </span></span><span style=display:flex><span>	<span style=color:#75715e>// ...
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span>}
-</span></span></code></pre></div><p>因为没有泛型而带来的其他问题就不一一列举，相信许多开发者都有遇到需要泛型的场景。从 go 1.18 版本开始，将正式引入泛型，官方称谓叫做类型参数 <strong>type parameter</strong>，由于各种原因，现阶段的泛型比起一些流行语言中的泛型功能上还是差很多，不过总比没有好了。目前泛型主要使用的方式有两类：<strong>函数</strong>的类型参数，<strong>类型</strong>的类型参数。</p><h2 id=2-安装-go-118-以上的版本>2. 安装 go 1.18 以上的版本</h2><p>在 go1.18 尚未正式发布时可以通过如下命令安装 beta 版本体验</p><div class=highlight code=+n><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>go install golang.org/dl/go1.18beta2@latest
+</span></span></code></pre></div><p>因为没有泛型而带来的其他问题就不一一列举，相信许多开发者都有遇到需要泛型的场景。从 go 1.18 版本开始，将正式引入泛型，官方称谓叫做类型参数 <strong>type parameter</strong>，由于各种原因，现阶段的泛型比起一些流行语言中的泛型功能上还是差很多，不过总比没有好了。目前泛型主要使用的方式有两类：<strong>函数</strong>的类型参数，<strong>类型</strong>的类型参数。</p><h2 id=2-安装-go-118-以上的版本>2. 安装 go 1.18 以上的版本</h2><p>在 go1.18 尚未正式发布时可以通过如下命令安装 beta 版本体验</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-bash data-lang=bash><span style=display:flex><span>go install golang.org/dl/go1.18beta2@latest
 </span></span><span style=display:flex><span>go1.18beta2 download
 </span></span></code></pre></div><p>此后可以使用 <strong>go1.18beta2</strong> 命令取代原来的 go 命令编译支持泛型的代码。</p><h2 id=3-函数类型参数>3. 函数类型参数</h2><h3 id=31-泛型版本的求和函数>3.1. 泛型版本的求和函数</h3><p>仍以求和函数为例，泛型版本的写法如下：</p><div class=highlight code=sum><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#f92672>import</span> (
 </span></span><span style=display:flex><span>	<span style=color:#e6db74>&#34;golang.org/x/exp/constraints&#34;</span>
@@ -94,9 +50,7 @@
 </span></span><span style=display:flex><span>	}
 </span></span><span style=display:flex><span>	<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>sum</span>
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><blockquote>
-<p>constraints 原本是放在标准库的包，但是近期被移除了，改到了 x/exp 中，参见 <a href=https://github.com/golang/go/issues/50792 target=_blank>#50792</a></p></blockquote><p>这个版本实现了对任意多个同类型的整数求和。Sum 后面的中括号 <code>[]</code> 内就是定义类型参数的地方，其中 T 为类型参数名，constraints.Integer 是对该类型参数的约束，即 T 应该满足的条件，在这里我们要求 T 是一个整数。剩下的代码就和普通没有泛型的代码一致了，只不过后面 T 可以当作一个类型来使用。</p><blockquote>
-<p>go 的泛型参数为什么不使用其他流行语言的 <code>&lt; ></code> 定义泛型？这个主要是会引起语法上的歧义，比如下面这一段代码</p><p>x, y := a &lt; b, c > d</p></blockquote><p>现在可以来使用一下刚才定义的 Sum 方法：</p><div class=highlight code=sum+x><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
+</span></span></code></pre></div><blockquote><p>constraints 原本是放在标准库的包，但是近期被移除了，改到了 x/exp 中，参见 <a href=https://github.com/golang/go/issues/50792 target=_blank>#50792</a></p></blockquote><p>这个版本实现了对任意多个同类型的整数求和。Sum 后面的中括号 <code>[]</code> 内就是定义类型参数的地方，其中 T 为类型参数名，constraints.Integer 是对该类型参数的约束，即 T 应该满足的条件，在这里我们要求 T 是一个整数。剩下的代码就和普通没有泛型的代码一致了，只不过后面 T 可以当作一个类型来使用。</p><blockquote><p>go 的泛型参数为什么不使用其他流行语言的 <code>&lt; ></code> 定义泛型？这个主要是会引起语法上的歧义，比如下面这一段代码</p><p>x, y := a &lt; b, c > d</p></blockquote><p>现在可以来使用一下刚才定义的 Sum 方法：</p><div class=highlight code=sum+x><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>main</span>() {
 </span></span><span style=display:flex><span>	<span style=color:#a6e22e>fmt</span>.<span style=color:#a6e22e>Println</span>(<span style=color:#a6e22e>Sum</span>(<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>, <span style=color:#ae81ff>3</span>))
 </span></span><span style=display:flex><span>
 </span></span><span style=display:flex><span>	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>ints</span> = []<span style=color:#66d9ef>int</span>{<span style=color:#ae81ff>1</span>, <span style=color:#ae81ff>2</span>,<span style=color:#ae81ff>3</span>}
@@ -156,8 +110,7 @@
 </span></span><span style=display:flex><span>	<span style=color:#a6e22e>doSomething</span>(<span style=color:#ae81ff>0</span>, <span style=color:#e6db74>&#34;&#34;</span>, <span style=color:#e6db74>&#34;&#34;</span>)
 </span></span><span style=display:flex><span>	<span style=color:#a6e22e>doSomething</span>(<span style=color:#ae81ff>12</span>, <span style=color:#e6db74>&#34;y&#34;</span>, <span style=color:#e6db74>&#34;z&#34;</span>)
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>不过不同于一般的或运算，这里 <code>Or(a, b)</code> 时 b 的值已经确定，如果 b 是一个函数调用，那么当 a 不是 zero 值时，b 的函数调用完全浪费了。</p><blockquote>
-<p>javascript 中的 <code>a || b()</code> 不同于此处的 <code>Or(a, b())</code>，前者在 a 非空时不会调用函数 b</p></blockquote><p>可以再实现一个延迟函数调用的版本 OrNew 处理这种情况：</p><div class=highlight code=$+x><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Or</span>[<span style=color:#a6e22e>T</span> <span style=color:#a6e22e>comparable</span>](<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span> <span style=color:#a6e22e>T</span>) <span style=color:#a6e22e>T</span> {
+</span></span></code></pre></div><p>不过不同于一般的或运算，这里 <code>Or(a, b)</code> 时 b 的值已经确定，如果 b 是一个函数调用，那么当 a 不是 zero 值时，b 的函数调用完全浪费了。</p><blockquote><p>javascript 中的 <code>a || b()</code> 不同于此处的 <code>Or(a, b())</code>，前者在 a 非空时不会调用函数 b</p></blockquote><p>可以再实现一个延迟函数调用的版本 OrNew 处理这种情况：</p><div class=highlight code=$+x><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-go data-lang=go><span style=display:flex><span><span style=color:#66d9ef>func</span> <span style=color:#a6e22e>Or</span>[<span style=color:#a6e22e>T</span> <span style=color:#a6e22e>comparable</span>](<span style=color:#a6e22e>a</span>, <span style=color:#a6e22e>b</span> <span style=color:#a6e22e>T</span>) <span style=color:#a6e22e>T</span> {
 </span></span><span style=display:flex><span>	<span style=color:#66d9ef>var</span> <span style=color:#a6e22e>zero</span> <span style=color:#a6e22e>T</span>
 </span></span><span style=display:flex><span>	<span style=color:#66d9ef>if</span> <span style=color:#a6e22e>a</span> <span style=color:#f92672>==</span> <span style=color:#a6e22e>zero</span> {
 </span></span><span style=display:flex><span>		<span style=color:#66d9ef>return</span> <span style=color:#a6e22e>b</span>
@@ -411,16 +364,7 @@
 </span></span><span style=display:flex><span>	<span style=color:#75715e>// 事件 B 的类型就需要指针了，因为注册时使用了指针。
 </span></span></span><span style=display:flex><span><span style=color:#75715e></span>	<span style=color:#a6e22e>dispatcher</span>.<span style=color:#a6e22e>DispatchEvent</span>(new(<span style=color:#a6e22e>testEventB</span>))
 </span></span><span style=display:flex><span>}
-</span></span></code></pre></div><p>除了这个例子中的使用 string 作为事件类别的类型外，还可以使用整数，reflect.Type 或其他任意可比较的类型。</p><p>事件系统的完整代码可参见 <a href=https://github.com/gopherd/doge/blob/main/event/event.go target=_blank>github.com/gopherd/doge/blob/main/event/event.go</a></p><h2 id=5-结语>5. 结语</h2><p>总体来说，go 的泛型功能还是较少的，使用限制较多。另外 go 1.18 版本的泛型存在一个严重的性能问题：范型参数存在不必要的内存逃逸，而且执行速度低下，在 go 1.19 的 Milestone 中已经有提交来修正这个问题了（<a href=https://github.com/golang/go/issues/50182 target=_blank>#50182</a>）。然而内存逃逸的问题修复了，性能却仍然比非范型的版本差。</p><p>目前建议只在满足以下条件之一的时候使用范型：</p><ul>
-<li>普通基础类型用作类型参数约束</li><li>参数类型约束没有成员方被调用</li><li>对性能没有极致要求</li></ul><br>
-</article></div><hr>
-<script src=https://utteranc.es/client.js repo=gopherd/gopherd.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script>
-</div><div id=footer class=mb-5>
-<br>
-<hr>
-<div class="container text-center">
-<a href=https://github.com/mkideal class="fab fa-github fa-1x" title=GitHub></a>
+</span></span></code></pre></div><p>除了这个例子中的使用 string 作为事件类别的类型外，还可以使用整数，reflect.Type 或其他任意可比较的类型。</p><p>事件系统的完整代码可参见 <a href=https://github.com/gopherd/doge/blob/main/event/event.go target=_blank>github.com/gopherd/doge/blob/main/event/event.go</a></p><h2 id=5-结语>5. 结语</h2><p>总体来说，go 的泛型功能还是较少的，使用限制较多。另外 go 1.18 版本的泛型存在一个严重的性能问题：范型参数存在不必要的内存逃逸，而且执行速度低下，在 go 1.19 的 Milestone 中已经有提交来修正这个问题了（<a href=https://github.com/golang/go/issues/50182 target=_blank>#50182</a>）。然而内存逃逸的问题修复了，性能却仍然比非范型的版本差。</p><p>目前建议只在满足以下条件之一的时候使用范型：</p><ul><li>普通基础类型用作类型参数约束</li><li>参数类型约束没有成员方被调用</li><li>对性能没有极致要求</li></ul><br></article></div><hr><script src=https://utteranc.es/client.js repo=gopherd/gopherd.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div><div id=footer class=mb-5><br><hr><div class="container text-center"><a href=https://github.com/mkideal class="fab fa-github fa-1x" title=GitHub></a>
 <a href=https://twitter.com/mkideal class="fab fa-twitter fa-1x" title=Twitter></a>
 <a href=https://facebook.com/mkideal.io class="fab fa-facebook fa-1x" title=Facebook></a>
-<a href=mailto:i@mkideal.com class="fas fa-envelope fa-1x" title=E-mail></a>
-</div></div></body></html>
+<a href=mailto:i@mkideal.com class="fas fa-envelope fa-1x" title=E-mail></a></div></div></body></html>
