@@ -47,7 +47,7 @@ func Pop(h Interface) interface{} {
 
 在 go1.18 尚未正式发布时可以通过如下命令安装 beta 版本体验
 
-```bash {code="+n"}
+```bash
 go install golang.org/dl/go1.18beta2@latest
 go1.18beta2 download
 ```
