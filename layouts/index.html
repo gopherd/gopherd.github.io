@@ -9,7 +9,7 @@
     </article>
     <ul>
         {{ range first 50 (where .Site.AllRegularPages "Section" "posts") }}
-        {{ if not .Params.hideInList }}
+        {{ if and (not .Params.hideInList) (not .Params.draft) }}
         <!-- <li><a href="{{ .Permalink }}">{{ .Date.Format "2006-01-02" }} | {{ .Title }}</a></li> -->
         <div class="app-item app-item-content">
             <div class="app-item-content-details">
