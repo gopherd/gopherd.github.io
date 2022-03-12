@@ -23,7 +23,7 @@ pip3 install matplotlib
 conda install matplotlib
 ```
 
-下面的代码绘制一条抛物线
+[官方文档 >](https://matplotlib.org/stable/tutorials/index.html)
 
 ## 2. 绘图类型
 
@@ -171,3 +171,139 @@ plt.show()
 ```
 
 <img src="/img/posts/python/matplotlib/step.png"></img>
+
+### 2.6. fill\_between [>](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.fill_between.html#matplotlib.axes.Axes.fill_between)
+
+> `Axes.fill_between(x, y1, y2=0, where=None, interpolate=False, step=None, *, data=None, **kwargs)`
+>
+> Fill the area between two horizontal curves.
+>
+> `fill_between` 方法填充两条曲线水平方向之间的区域
+
+```py
+import matplotlib.pyplot as plt
+import numpy as np
+
+# make data
+x = np.linspace(0, 10, 10)
+y1 = np.sin(x) + 2
+y2 = y1 + 4 + np.random.normal(0, 0.5, len(x))
+
+fig, ax = plt.subplots()
+
+ax.fill_between(x, y1, y2, alpha=0.3, linewidth=0)
+ax.plot(x, (y1 + y2) / 2, linewidth=3)
+ax.set(xlim=(0, 10), xticks=np.arange(1, 10), ylim=(0, 10), yticks=np.arange(1, 10))
+
+# show
+plt.show()
+```
+
+<img src="/img/posts/python/matplotlib/fill_between.png"></img>
+
+### 2.7. imshow [>](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow)
+
+> `Axes.imshow(X, cmap=None, norm=None, *, aspect=None, interpolation=None, alpha=None, vmin=None, vmax=None, origin=None, extent=None, interpolation_stage=None, filternorm=True, filterrad=4.0, resample=None, url=None, data=None, **kwargs)`
+>
+> Display data as an image.
+>
+> `imshow` 方法将数据作为图片输出。
+
+```py
+import matplotlib.pyplot as plt
+import numpy as np
+
+# make data
+X, Y = np.meshgrid(np.linspace(-5, 5, 32), np.linspace(-5, 5, 32))
+Z = X**2 + Y**2 + X + Y
+
+fig, ax = plt.subplots()
+ax.imshow(Z)
+
+# show
+plt.show()
+```
+
+<img src="/img/posts/python/matplotlib/imshow.png"></img>
+
+### 2.8. contour [>](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.contour.html#matplotlib.axes.Axes.contour)
+
+> `Axes.contour(*args, data=None, **kwargs)`
+>
+> Plot contour lines.
+>
+> `contour` 方法绘制轮廓线。
+
+```py
+import matplotlib.pyplot as plt
+import numpy as np
+
+# make data
+X, Y = np.meshgrid(np.linspace(-4, 4, 256), np.linspace(-4, 4, 256))
+Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
+levels = np.linspace(np.min(Z), np.max(Z), 10)
+
+fig, ax = plt.subplots()
+ax.contour(X, Y, Z, levels=levels)
+# contourf 方法将采用填充方式绘制轮廓线
+
+# show
+plt.show()
+```
+
+<img src="/img/posts/python/matplotlib/contour.png"></img>
+
+### 2.9. quiver [>](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.quiver.html#matplotlib.axes.Axes.quiver)
+
+> `Axes.quiver(*args, data=None, **kwargs)`
+>
+> Plot a 2D field of arrows.
+>
+> `quiver` 方法使用箭头绘制平面场。
+
+```py
+import matplotlib.pyplot as plt
+import numpy as np
+
+# make data
+X, Y = np.meshgrid(np.linspace(-4, 4, 8), np.linspace(-4, 4, 8))
+U = X + Y
+V = Y - X
+
+fig, ax = plt.subplots()
+ax.quiver(X, Y, U, V, color="C0", angles="xy", scale_units="xy", scale=6, width=0.01)
+
+# show
+plt.show()
+```
+
+<img src="/img/posts/python/matplotlib/quiver.png"></img>
+
+### 2.10. pie [>](https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.pie.html#matplotlib.axes.Axes.pie)
+
+> `Axes.pie(x, explode=None, labels=None, colors=None, autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1, startangle=0, radius=1, counterclock=True, wedgeprops=None, textprops=None, center=(0, 0), frame=False, rotatelabels=False, *, normalize=True, data=None)`
+>
+> Plot a pie chart.
+>
+> `pie` 方法绘制饼图。
+
+```py
+import matplotlib.pyplot as plt
+import numpy as np
+
+# make data
+x = [1, 2, 3, 4]
+colors = plt.get_cmap('Blues')(np.linspace(0.3, 0.7, len(x)))
+
+# plot
+fig, ax = plt.subplots()
+ax.pie(x, colors=colors, radius=3, center=(4, 4),
+       wedgeprops={"linewidth": 1, "edgecolor": "white"}, frame=True)
+
+ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+       ylim=(0, 8), yticks=np.arange(1, 8))
+
+plt.show()
+```
+
+<img src="/img/posts/python/matplotlib/pie.png"></img>
