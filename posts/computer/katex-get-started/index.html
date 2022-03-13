@@ -1,0 +1,103 @@
+<!doctype html><html lang><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1,shrink-to-fit=no"><title>Katex 初步</title><meta name=description content="mkideal's Blog"><meta name=author content="mkideal"><link rel=stylesheet href=/css/fonts.css><link rel=stylesheet href=/css/bootstrap.min.css><link rel=stylesheet href=/font-awesome/css/all.min.css><link rel=stylesheet href=/sass/researcher.min.css><link rel="short icon" type=image/ico href="https://gopherd.com/favicon.ico?v=1.0"><link rel=icon type=image/ico href="https://gopherd.com/favicon.ico?v=1.0"><script data-ad-client=ca-pub-4848513853142926 async src=https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-77412491-1"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag("js",new Date),gtag("config","UA-77412491-1")</script><link rel=stylesheet href=/css/style.css><link rel=stylesheet href=/css/prism.css><script src=https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/components/prism-core.min.js></script>
+<script src=https://cdnjs.cloudflare.com/ajax/libs/prism/1.27.0/plugins/autoloader/prism-autoloader.min.js></script>
+<script src=/js/lib/jquery-3.6.0.min.js></script>
+<script src=/js/lib/bootstrap.bundle.min.js></script>
+<script src=/js/mongo.js data-forward-url=https://code.gopherd.com/forward data-app-id=data-egkqp data-source=Cluster0 data-database=blog_mkideal_com data-collection></script>
+<script src=/js/codeblock.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/go.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/rust.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/lua.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/sololearn.js data-forward-url=https://code.gopherd.com/forward></script>
+<script src=/js/runner/onecompiler.js data-forward-url=https://code.gopherd.com/forward></script>
+<script>codeblock.init({shareCodeURL:"https://gopherd.com/tools/playground"});var oldHighlightAll=Prism.highlightAll;Prism.highlightAll=function(e,t){document.querySelectorAll('code:not([data-lang=""])').forEach(function(e){var t=e.getAttribute("data-lang"),n;t&&(n=codeblock.syntaxName(t),t!==n&&(e.className&&e.className.includes("language-"+t)&&(e.className=e.className.replace("language-"+t,"")),(!e.className||!e.className.includes("language-"+n))&&(console.log("add syntax class",n),e.className=(e.className||"")+" language-"+n)))}),oldHighlightAll(e,t)},$(function(){$('[data-toggle="tooltip"]').tooltip({trigger:"hover",delay:{show:250,hide:250}}),navigator&&/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)&&$(document).on("shown.bs.tooltip",function(e){setTimeout(function(){$(e.target).tooltip("hide")},2e3)})})</script></head><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.css integrity=sha384-MlJdn/WNKDGXveldHDdyRP1R4CTHr3FeuDNfhsLPYrq2t0UBkUdK2jyTnXPEK1NQ crossorigin=anonymous><script defer src=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/katex.min.js integrity=sha384-VQ8d8WVFw0yHhCk5E8I86oOhv48xLpnDZx5T9GogA/Y84DcCKWXDmSDfn13bzFZY crossorigin=anonymous></script>
+<script defer src=https://cdn.jsdelivr.net/npm/katex@0.15.2/dist/contrib/auto-render.min.js integrity=sha384-+XBljXPPiv+OzfbB3cVmLHf4hdUFHlWNZN5spNQ7rmHTXpd7WvJum6fIACpNNfIR crossorigin=anonymous onload=renderMathInElement(document.body)></script>
+<script>document.addEventListener("DOMContentLoaded",function(){renderMathInElement(document.body,{delimiters:[{left:"$$",right:"$$",display:!0},{left:"\\[",right:"\\]",display:!0},{left:"$",right:"$",display:!1},{left:"\\(",right:"\\)",display:!1}]})})</script><body><div id=container-header><div class="container mt-5" style=margin-top:0!important><nav class="navbar navbar-expand-sm flex-column flex-sm-row text-nowrap p-0"><a class="navbar-brand mx-0 mr-sm-auto" href=https://gopherd.com/ title><img src=https://gopherd.com/img/logo.svg width=187 height=34 alt=logo></a><div class="navbar-nav flex-row flex-wrap justify-content-center"><a class="nav-item nav-link" href=/ title=主页>主页</a>
+<span class="nav-item navbar-text mx-1">/</span>
+<a class="nav-item nav-link" href=/tools title=工具>工具</a></div></nav></div></div><div id=content><div class=container><article><header><p><i class="fa-regular fa-calendar"></i> <span class=app-item-time>2022年3月13日</span></p><h1 class="center-text article-title" style=margin-bottom:10px>Katex 初步</h1></header><div><h4 class=text-center style=margin-top:32px;margin-bottom:10px><strong>摘&nbsp;&nbsp;要</strong></h4><span>介绍数学公式库 katex 的使用</span></div><div style=margin-top:10px><strong>关键词:</strong>
+<code class=keyword>math</code>
+<code class=keyword>tex</code>
+<code class=keyword>katex</code></div><h2 id=1-如何在-hugo-中使用-katex>1. 如何在 hugo 中使用 Katex</h2><h3 id=11-行内公式在公式首尾加上--符号比如>1.1. 行内公式，在公式首尾加上 <code>$</code> 符号，比如：</h3><ul><li>爱因斯坦质能转换方程 <code>$E=mc^2$</code>: $E=mc^2$</li><li>一元二次方程的根式解 <code>$x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</code>: $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</li></ul><h3 id=12-独立行公式可以使用--math--和--math--包裹比如>1.2. 独立行公式，可以使用 <code>{{&lt; math >}}</code> 和 <code>{{&lt; /math >}}</code> 包裹，比如：</h3><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>{{&lt; math &gt;}}
+</span></span><span style=display:flex><span>x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}
+</span></span><span style=display:flex><span>{{&lt; /math &gt;}}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{{&lt; math &gt;}}
+</span></span><span style=display:flex><span>\sum_{i=0}^{n}{x}
+</span></span><span style=display:flex><span>{{&lt; /math &gt;}}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{{&lt; math &gt;}}
+</span></span><span style=display:flex><span>\int_{0}^{\frac{\pi}{2}}{x^2}{dx}
+</span></span><span style=display:flex><span>{{&lt; /math &gt;}}
+</span></span></code></pre></div>$$
+x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$$
+$$
+\sum_{i=0}^{n}{x}$$
+$$
+\int_{0}^{\frac{\pi}{2}}{x^2}{dx}$$<p>公式中 <code>\frac</code>, <code>\pm</code>, <code>\sqrt</code> 等以 <code>\</code> 开头的函数用于输出特定的符号。更多的函数支持参见 <a href=https://katex.org/docs/supported.html>https://katex.org/docs/supported.html</a></p><h2 id=2-常见符号的使用>2. 常见符号的使用</h2><h3 id=21-分号frac根号-sqrt>2.1. 分号<code>\frac</code>，根号 <code>\sqrt</code></h3><p>分号函数一般后接两个参数，表示分子和分母 <code>\frac{x}{y}</code>: $\frac{x}{y}$.</p><p>根号后面接一个参数为里面的内容 <code>\sqrt{x^2+y^2}</code>: $\sqrt{x^2+y^2}$.</p><h3 id=22-上标-_下标->2.2. 上标 <code>_</code>，下标 <code>^</code></h3><p>上下标的表示很简单，比如：</p><ul><li><code>x^i</code>: $x^i$</li><li><code>x_i</code>: $x_i$</li><li><code>x_i^j</code>: $x_i^j$</li><li><code>x_{ij}</code>: $x_{ij}$</li></ul><h3 id=23-矩阵>2.3. 矩阵</h3><p>矩阵存在多种括号模式，包括圆括号 <code>()</code>，中括号 <code>[]</code>，花括号 <code>{}</code>，竖线 <code>||</code>，甚至没有括号等。</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>{{&lt; math &gt;}}
+</span></span><span style=display:flex><span>\begin{matrix}
+</span></span><span style=display:flex><span>   a &amp; b \\
+</span></span><span style=display:flex><span>   c &amp; d
+</span></span><span style=display:flex><span>\end{matrix}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\quad
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\begin{pmatrix}
+</span></span><span style=display:flex><span>   a &amp; b \\
+</span></span><span style=display:flex><span>   c &amp; d
+</span></span><span style=display:flex><span>\end{pmatrix}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\quad
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\begin{bmatrix}
+</span></span><span style=display:flex><span>   a &amp; b \\
+</span></span><span style=display:flex><span>   c &amp; d
+</span></span><span style=display:flex><span>\end{bmatrix}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\quad
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\begin{Bmatrix}
+</span></span><span style=display:flex><span>   a &amp; b \\
+</span></span><span style=display:flex><span>   c &amp; d
+</span></span><span style=display:flex><span>\end{Bmatrix}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\quad
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\begin{vmatrix}
+</span></span><span style=display:flex><span>   a &amp; b \\
+</span></span><span style=display:flex><span>   c &amp; d
+</span></span><span style=display:flex><span>\end{vmatrix}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\quad
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\begin{Vmatrix}
+</span></span><span style=display:flex><span>   a &amp; b \\
+</span></span><span style=display:flex><span>   c &amp; d
+</span></span><span style=display:flex><span>\end{Vmatrix}
+</span></span><span style=display:flex><span>{{&lt; /math &gt;}}
+</span></span></code></pre></div>$$
+\begin{matrix} a & b \\ c & d \end{matrix} \quad \begin{pmatrix} a & b \\ c & d \end{pmatrix} \quad \begin{bmatrix} a & b \\ c & d \end{bmatrix} \quad \begin{Bmatrix} a & b \\ c & d \end{Bmatrix} \quad \begin{vmatrix} a & b \\ c & d \end{vmatrix} \quad \begin{Vmatrix} a & b \\ c & d \end{Vmatrix}$$<blockquote><p>上面的公式中 <code>\quad</code> 在公式之间插入空白。上面若干种矩阵符号仅有名称不同: <code>matrix</code>, <code>pmatrix</code>, <code>bmatrix</code>, <code>Bmatrix</code>, <code>vmatrix</code>, <code>Vmatrix</code>。</p></blockquote><p>一个 mxn 矩阵可表示如下:</p><div class=highlight><pre tabindex=0 style=color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4><code class=language-text data-lang=text><span style=display:flex><span>{{&lt; math &gt;}}
+</span></span><span style=display:flex><span>\begin{bmatrix}
+</span></span><span style=display:flex><span>   a_{11} &amp; a_{12} &amp; \cdots &amp; a_{1n} \\
+</span></span><span style=display:flex><span>   a_{21} &amp; a_{22} &amp; \cdots &amp; a_{2n} \\
+</span></span><span style=display:flex><span>   \vdots &amp; \vdots &amp;        &amp; \vdots \\
+</span></span><span style=display:flex><span>   a_{m1} &amp; a_{m2} &amp; \cdots &amp; a_{mn} \\
+</span></span><span style=display:flex><span>\end{bmatrix}
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>\quad{或}\quad
+</span></span><span style=display:flex><span>
+</span></span><span style=display:flex><span>{{&lt; math &gt;}}
+</span></span><span style=display:flex><span>\begin{bmatrix}
+</span></span><span style=display:flex><span>   a_{11} &amp; a_{12} &amp; \cdots &amp; a_{1j} &amp; \cdots &amp; a_{1n} \\
+</span></span><span style=display:flex><span>   a_{21} &amp; a_{22} &amp; \cdots &amp; a_{2j} &amp; \cdots &amp; a_{2n} \\
+</span></span><span style=display:flex><span>   \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \ddots &amp; \vdots \\
+</span></span><span style=display:flex><span>   a_{i1} &amp; a_{i2} &amp; \cdots &amp; a_{ij} &amp; \cdots &amp; a_{in} \\
+</span></span><span style=display:flex><span>   \vdots &amp; \vdots &amp; \ddots &amp; \vdots &amp; \ddots &amp; \vdots \\
+</span></span><span style=display:flex><span>   a_{m1} &amp; a_{m2} &amp; \cdots &amp; a_{mn} &amp; \cdots &amp; a_{mn} \\
+</span></span><span style=display:flex><span>\end{bmatrix}
+</span></span><span style=display:flex><span>{{&lt; /math &gt;}}
+</span></span></code></pre></div>$$
+\begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2n} \\ \vdots & \vdots & & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} \\ \end{bmatrix} \quad{或}\quad \begin{bmatrix} a_{11} & a_{12} & \cdots & a_{1j} & \cdots & a_{1n} \\ a_{21} & a_{22} & \cdots & a_{2j} & \cdots & a_{2n} \\ \vdots & \vdots & \ddots & \vdots & \ddots & \vdots \\ a_{i1} & a_{i2} & \cdots & a_{ij} & \cdots & a_{in} \\ \vdots & \vdots & \ddots & \vdots & \ddots & \vdots \\ a_{m1} & a_{m2} & \cdots & a_{mn} & \cdots & a_{mn} \\ \end{bmatrix}$$<br></article></div><hr><script src=https://utteranc.es/client.js repo=gopherd/gopherd.github.io issue-term=pathname theme=github-light crossorigin=anonymous async></script></div><div id=footer class=mb-5><br><hr><div class="container text-center"><a href=https://github.com/mkideal class="fab fa-github fa-1x" title=GitHub></a>
+<a href=https://twitter.com/mkideal class="fab fa-twitter fa-1x" title=Twitter></a>
+<a href=https://facebook.com/mkideal.io class="fab fa-facebook fa-1x" title=Facebook></a>
+<a href=mailto:i@mkideal.com class="fas fa-envelope fa-1x" title=E-mail></a></div></div></body></html>
