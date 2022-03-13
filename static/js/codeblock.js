@@ -484,6 +484,13 @@ function isHidden(elem) {
 	return elem.offsetParent == null;
 }
 
+function hasClass(elem, name) {
+	return elem.className == name ||
+		elem.className.startsWith(name + " ") ||
+		elem.className.endsWith(" " + name) ||
+		elem.className.indexOf(" " + name + " ") >= 0;
+}
+
 /**
  * add run/undo/share button for codeblock
  */
@@ -499,9 +506,13 @@ function addLanguageButton(options, parentNode, code) {
 		code.id = id;
 	}
 	var highlight = code.parentNode.parentNode;
+	console.log("highlight.class", highlight.className);
+	if (!hasClass(highlight, "highlight")) {
+		highlight = null;
+	}
 
 	// parse "code" attributes: [programName][+xbew] | "-" | ""
-	var attrs = highlight.getAttribute(options.codeAttrName) || "";
+	var attrs = highlight ? highlight.getAttribute(options.codeAttrName) || "" : "";
 	var isIgnored = attrs === kIgnoredProgram;
 	var program = kDefaultProgram;
 	var modes = "";
@@ -521,6 +532,10 @@ function addLanguageButton(options, parentNode, code) {
 	if (program === kAutoProgram || isBad) {
 		program = guid().replace(/-/g, "");
 	}
+	if (!highlight && !modes.includes(kModeNoNumber)) {
+		modes += kModeNoNumber;
+	}
+	console.log("modes", modes);
 	// program with language prefix
 	program = lang + kProgramSeparator + program;
 	var block = new Block(id, lang, program, modes, code);
@@ -546,7 +561,7 @@ function addLanguageButton(options, parentNode, code) {
 		block.buttons["undo"] = button;
 		setEditMode(options, block, button);
 	}
-	if (!modes.includes(kModeNoNumber)) {
+	if (!modes.includes(kModeNoNumber) && highlight) {
 		var container = document.createElement("div");
 		container.className = "codeblock-container";
 		var flex = document.createElement("div");
@@ -581,7 +596,13 @@ function addLanguageButton(options, parentNode, code) {
 
 function syncLineNumbers(block) {
 	var code = block.code;
-	var numbers = code.parentNode.parentNode.parentNode.querySelector(".codeblock-left > pre > code");
+	var numbers;
+	if (code.parentNode && code.parentNode.parentNode && code.parentNode.parentNode.parentNode) {
+		numbers = code.parentNode.parentNode.parentNode.querySelector(".codeblock-left > pre > code");
+	}
+	if (!numbers) {
+		return;
+	}
 	numbers.style.height = block.code.offsetHeight + "px";
 	var lines = 0;
 	var source = block.source;

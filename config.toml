@@ -3,11 +3,11 @@ languageCode = 'zh-cn'
 title = ""
 theme = "researcher"
 enableEmoji = true
-math = true
 googleAnalytics = ""
 
 [params]
 	author = "mkideal"
+	math = true
 	description = "mkideal's Blog"
 	favicon = "favicon.ico"  # path to a .ico to use as favicon
 	logo = "/img/logo.svg"  # url or path to a logo to put in the header
