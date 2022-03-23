@@ -1112,7 +1112,7 @@ function appendOutput(options, results, output, index, delayed) {
 			flex = null;
 			for (var k = 0; k < columns.length; k++) {
 				var text = k === 0 ? columns[k] : ('\t' + columns[k]);
-				if (isBase64HTML(text)) {
+				if (isBase64Image(text) || isBase64HTML(text)) {
 					flex = document.createElement("div");
 					flex.style.display = "flex";
 					flex.style.justifyContent = "center";
