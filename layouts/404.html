@@ -1,24 +1,3 @@
 {{ define "main" }}
-<div class="container">
-	<meta http-equiv="refresh" content="3; URL={{ .Site.BaseURL }}" />
-	<article>
-		<strong style="font-size: 10em; text-align: center;">404</strong>
-		<span style="text-align: center;">Page not found (<span id="redirect_countdown">3</span>s)</span>
-	</article>
-	<script>
-		document.addEventListener('DOMContentLoaded', (event) => {
-			var countdown = 3;
-			var elem = document.getElementById("redirect_countdown");
-			elem.innerText = countdown + "";
-			var tid = setInterval(function () {
-				countdown--;
-				if (countdown < 0) {
-					clearInterval(tid);
-					return;
-				}
-				elem.innerText = countdown + "";
-			}, 1000);
-		});
-	</script>
-</div>
+<section class="container not-found"><p class="eyebrow">404 / Page not found</p><h1>This page isn’t here.</h1><p>The link may be outdated, or the page may have moved.</p><a class="button" href="{{ "/" | relURL }}">Back to home <span aria-hidden="true">↗</span></a></section>
 {{ end }}

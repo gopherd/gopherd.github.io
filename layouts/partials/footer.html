@@ -1,14 +1,10 @@
-<div id="footer" class="mb-5">
-	<br/>
-    <hr>
-    <div class="container text-center">
-        {{ range $item := .Site.Params.socialIcons }}
-        <a href="{{ $item.url }}" class="{{ $item.icon }} fa-1x" title="{{ $item.title }}"></a>
-        {{ end }}
-    </div>
-    {{ with .Site.Params.footer }}
-    <div class="container text-center">
-        <a href="{{ .url | absURL }}" title="{{ .text }}"><small>{{ .text }}</small></a>
-    </div>
-    {{ end }}
-</div>
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <p>© {{ now.Format "2006" }} Gopherd. Independently crafted.</p>
+    <nav aria-label="Footer navigation">
+      <a href="{{ "/privacy-policy/" | relURL }}">Privacy Policy</a>
+      <a href="{{ "/terms-of-service/" | relURL }}">Terms of Service</a>
+      <a href="mailto:{{ .Site.Params.email }}">Contact</a>
+    </nav>
+  </div>
+</footer>

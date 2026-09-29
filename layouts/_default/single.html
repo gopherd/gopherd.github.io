@@ -1,0 +1,12 @@
+{{ define "main" }}
+<article class="container legal-page">
+  <header class="legal-header"><p class="eyebrow">Gopherd / Legal</p><h1>{{ .Title }}</h1><p class="updated">Last updated: {{ .Params.updated }}</p></header>
+  <div class="legal-layout">
+    <div class="table-of-contents">
+      <p id="toc-heading">On this page</p>
+      {{ replace .TableOfContents "<nav " "<nav aria-labelledby=\"toc-heading\" " | safeHTML }}
+    </div>
+    <div class="prose">{{ .Content }}</div>
+  </div>
+</article>
+{{ end }}
