@@ -1,10 +1,6 @@
 <footer class="site-footer">
   <div class="container footer-inner">
-    <p>© {{ now.Format "2006" }} Gopherd. Independently crafted.</p>
-    <nav aria-label="Footer navigation">
-      <a href="{{ "/privacy-policy/" | relURL }}">Privacy Policy</a>
-      <a href="{{ "/terms-of-service/" | relURL }}">Terms of Service</a>
-      <a href="mailto:{{ .Site.Params.email }}">Contact</a>
-    </nav>
+    <p>© {{ now.Format "2006" }} Gopherd</p>
+    <nav aria-label="Footer navigation"><a href="{{ "/privacy-policy/" | relURL }}">Privacy Policy</a><a href="{{ "/terms-of-service/" | relURL }}">Terms of Service</a></nav>
   </div>
 </footer>

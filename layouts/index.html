@@ -1,20 +1,28 @@
 {{ define "main" }}
-<div class="container">
-  <section class="hero" aria-labelledby="hero-title">
-    <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span>{{ .Params.eyebrow }}</p>
-    <h1 id="hero-title">Thoughtful tools.<br><span>Simpler days.</span></h1>
+<section class="hero container" aria-labelledby="hero-title">
+  <p class="eyebrow">Independent app development</p>
+  <h1 id="hero-title">{{ .Params.headline }}<br><em>{{ .Params.highlight }}</em></h1>
+  <div class="hero-bottom">
     <div class="hero-copy">{{ .Content }}</div>
     <a class="button" href="mailto:{{ .Site.Params.email }}">Get in touch <span aria-hidden="true">↗</span></a>
-    <p class="hero-note">Small details. Everyday usefulness.</p>
-  </section>
-  <section class="approach" aria-labelledby="approach-title">
-    <div class="section-heading"><p class="eyebrow">Our approach</p><h2 id="approach-title">Useful by design.</h2><p>Good tools make room for what matters.</p></div>
-    <div class="principles">
-      <article><span class="number" aria-hidden="true">01 /</span><h3>A clear purpose</h3><p>We start with everyday needs and build focused apps that help solve them.</p></article>
-      <article><span class="number" aria-hidden="true">02 /</span><h3>Less friction</h3><p>Simple interfaces and thoughtful details make each task feel a little easier.</p></article>
-      <article><span class="number" aria-hidden="true">03 /</span><h3>A personal touch</h3><p>We build, maintain, and improve our apps ourselves, with care for the people using them.</p></article>
+  </div>
+</section>
+<section class="approach-section" aria-labelledby="approach-title">
+  <div class="container approach-layout">
+    <div class="approach-intro">
+      <p class="eyebrow">What goes into our apps</p>
+      <h2 id="approach-title">A clear purpose.<br>A considered experience.</h2>
+      <p>Good tools fit into your day. We care about what an app helps you do, how it feels to use, and the details that make it worth keeping.</p>
     </div>
-  </section>
-  <section class="contact" aria-labelledby="contact-title"><div><p class="eyebrow">Let’s talk</p><h2 id="contact-title">A question, an idea, or a little feedback?</h2><p>We’d love to hear from you.</p></div><a href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }} <span aria-hidden="true">↗</span></a></section>
-</div>
+    <div class="principles">
+      <article><h3>Practical from the start</h3><p>We build around real tasks, keeping each app focused on doing its job well.</p></article>
+      <article><h3>Easy to find your way</h3><p>Clear interfaces and sensible defaults help you spend less time figuring things out.</p></article>
+      <article><h3>Care beyond the first release</h3><p>We maintain what we make and use feedback to guide improvements over time.</p></article>
+    </div>
+  </div>
+</section>
+<section class="contact-section container" aria-labelledby="contact-title">
+  <div><p class="eyebrow">Contact</p><h2 id="contact-title">A question?<br><em>We’re here to help.</em></h2></div>
+  <div class="contact-details"><p>For support, feedback, or questions about our apps, get in touch with us directly.</p><a class="email-link" href="mailto:{{ .Site.Params.email }}">{{ .Site.Params.email }} <span aria-hidden="true">↗</span></a><p class="contact-hint">For app support, please include the app name.</p></div>
+</section>
 {{ end }}

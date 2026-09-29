@@ -8,7 +8,7 @@ English-language website for independent utility app developers, built with Hugo
 - `/privacy-policy/`: privacy policy
 - `/terms-of-service/`: terms of service
 
-Content lives in `content/`; shared templates live in `layouts/`; styling lives in `assets/css/style.css`. The vendored Researcher theme is retained, with site-specific template overrides. No JavaScript or external frontend dependencies are required.
+Content lives in `content/`; shared templates live in `layouts/`; styling lives in `assets/css/style.css`. The vendored Researcher theme is retained, with site-specific template overrides. No JavaScript or external frontend dependencies are required. Manrope and Instrument Serif are served locally from `static/fonts/`, with their SIL Open Font Licenses included.
 
 ## Development
 
