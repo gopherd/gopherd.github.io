@@ -11,7 +11,9 @@ This policy describes information handling for gopherd.com, communications with 
 
 ## 2. Information we handle
 
-**When you visit this website.** This site provides information and links to our contact email. It does not offer accounts or collect information through forms. We do not include advertising, analytics scripts, or tracking cookies on this website. The hosting provider may process technical request information, such as IP addresses, browser details, requested pages, and access times, to deliver and secure the site.
+**When you visit this website.** This site provides information, links to our contact email, and an app feedback form. It does not offer accounts. We do not include advertising, analytics scripts, or tracking cookies on this website. The hosting provider may process technical request information, such as IP addresses, browser details, requested pages, and access times, to deliver and secure the site.
+
+**When you submit app feedback.** The form sends your feedback and optional email address to our shared feedback service at api.zeroplay.io. When supplied by the app in the feedback link, it also sends the app ID or identifier, store, user ID, operating system version, app version, and device model to help us investigate and respond to your feedback.
 
 **When you contact us.** We receive your email address, the contents of your message, and any attachments or details you choose to send. Please avoid sending passwords, payment card details, or other sensitive information that is not needed for your request.
 

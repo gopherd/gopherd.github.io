@@ -7,8 +7,11 @@ English-language website for independent utility app developers, built with Hugo
 - `/`: developer introduction
 - `/privacy-policy/`: privacy policy
 - `/terms-of-service/`: terms of service
+- `/feedback/`: app feedback form, sharing the ZeroPlay feedback API
 
-Content lives in `content/`; shared templates live in `layouts/`; styling lives in `assets/css/style.css`. The vendored Researcher theme is retained, with site-specific template overrides. No JavaScript or external frontend dependencies are required. Manrope and Instrument Serif are served locally from `static/fonts/`, with their SIL Open Font Licenses included.
+Content lives in `content/`; shared templates live in `layouts/`; styling lives in `assets/css/style.css`. The vendored Researcher theme is retained, with site-specific template overrides. The feedback page uses vanilla JavaScript; no external frontend dependencies are required. Manrope and Instrument Serif are served locally from `static/fonts/`, with their SIL Open Font Licenses included.
+
+Apps can open `/feedback/?app=123` or `/feedback/?slug=my-app`. Optional query parameters match the ZeroPlay page: `store`, `uid`, `os` / `osVersion`, `ver` / `appver` / `appVersion`, and `device` / `model` / `deviceModel`. Feedback (up to 500 characters) and an optional email are submitted as JSON to `https://api.zeroplay.io/v1/developer/feedback`. The shared backend must allow requests from `https://gopherd.com` through its CORS configuration.
 
 ## Development
 

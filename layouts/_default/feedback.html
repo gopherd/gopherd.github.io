@@ -1,0 +1,26 @@
+{{ define "main" }}
+<section class="container feedback-page" aria-labelledby="feedback-title">
+  <header class="feedback-header">
+    <p class="eyebrow">We're listening</p>
+    <h1 id="feedback-title">Feedback</h1>
+    <p>Share your thoughts, suggest an improvement, or tell us what went wrong.</p>
+  </header>
+  <form id="feedback-form" class="feedback-form" novalidate>
+    <div id="feedback-fields">
+      <label for="feedback-content">Your feedback</label>
+      <textarea id="feedback-content" name="content" rows="8" maxlength="500" required placeholder="Tell us what you think…" aria-describedby="feedback-count"></textarea>
+      <p id="feedback-count" class="feedback-count">0 / 500</p>
+      <label for="feedback-email">Email <span class="feedback-optional">(optional)</span></label>
+      <input id="feedback-email" name="email" type="email" maxlength="255" autocomplete="email" inputmode="email" placeholder="you@example.com" aria-describedby="feedback-email-hint">
+      <p id="feedback-email-hint" class="feedback-hint">Leave your email so we can get back to you with a reply.</p>
+      <p class="feedback-hint feedback-privacy">Read our <a href="{{ "/privacy-policy/" | relURL }}">Privacy Policy</a> to learn how we handle your feedback.</p>
+      <p id="feedback-error" class="feedback-message feedback-error" role="alert" hidden></p>
+      <button id="feedback-submit" class="button" type="submit">Submit feedback <span aria-hidden="true">↗</span></button>
+    </div>
+    <p id="feedback-success" class="feedback-message feedback-success" role="status" tabindex="-1" hidden>Thank you for your feedback! We appreciate your input.</p>
+    <noscript><p class="feedback-message feedback-error">Please enable JavaScript to submit feedback, or <a href="mailto:{{ .Site.Params.email }}">contact us by email</a>.</p></noscript>
+  </form>
+</section>
+{{ $feedback := resources.Get "js/feedback.js" | minify | fingerprint }}
+<script src="{{ $feedback.RelPermalink }}" integrity="{{ $feedback.Data.Integrity }}" defer></script>
+{{ end }}
